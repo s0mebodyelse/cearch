@@ -16,6 +16,8 @@
 
 #include "document.h"
 
+using json = nlohmann::json;
+
 class Index {
 public:
   Index(std::string directory, std::string index_path, int threads);
@@ -40,6 +42,8 @@ private:
   /* calculates the inverse_doc_frequency of a term on the whole corpus */
   double inverse_doc_frequency(std::string term, const std::unordered_map<std::string, std::unique_ptr<Document>> &corpus);
   void calculate_tfidf_index();
+  void save_index_to_filesystem();
+  void retrieve_index_from_filesystem();
 };
 
 #endif

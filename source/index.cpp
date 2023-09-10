@@ -1,8 +1,10 @@
 #include "index.h"
+#include <fstream>
 
 Index::Index(std::string directory, std::string index_path, int threads):
   index_path(index_path), threads(threads)
 {
+  /* TODO Check if there is an index in the index directory, then retrive the index */
   const auto start{std::chrono::steady_clock::now()};
   build_index(directory);
   calculate_tfidf_index();
@@ -11,6 +13,9 @@ Index::Index(std::string directory, std::string index_path, int threads):
   std::cout << "Building index took: " << elapsed_seconds.count() << "s" << std::endl;
   std::cout << "Indexed Documents: " << get_document_counter() << std::endl;
   std::cout << "Indexed Tokens: " << get_indexed_token_count() << std::endl;
+  
+  std::cout << "saving index to filesystem" << std::endl;
+  save_index_to_filesystem();
 }
 
 /* queries the index and returns the result ordered by tfidf ranking */
@@ -142,3 +147,24 @@ double Index::inverse_doc_frequency(std::string term, const std::unordered_map<s
 
   return std::log10((double)n / (double)term_count);
 }
+
+/* saves the index as json to index_path */
+void Index::save_index_to_filesystem() {
+  json j =  tfidf_index;
+  std::ofstream file(index_path + "/index_data.json");
+  file << j.dump();
+  file.close();
+}
+
+/* retrieves the index back from the filesystem */
+void Index::retrieve_index_from_filesystem() {
+  std::ifstream input(index_path + "/index_data.json");
+  json load;
+  input >> load;
+  input.close();
+  
+  tfidf_index = load.get<std::unordered_map<std::string, std::unordered_map<std::string, double>>>();
+}
+
+
+
