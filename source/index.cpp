@@ -16,6 +16,7 @@ Index::Index(std::string directory, std::string index_path, int threads):
   
   std::cout << "saving index to filesystem" << std::endl;
   save_index_to_filesystem();
+  dump_tfidf_index_to_file("./dump.txt");
 }
 
 /* queries the index and returns the result ordered by tfidf ranking */
@@ -152,7 +153,11 @@ double Index::inverse_doc_frequency(std::string term, const std::unordered_map<s
 void Index::save_index_to_filesystem() {
   json j =  tfidf_index;
   std::ofstream file(index_path + "/index_data.json");
-  file << j.dump();
+  try {
+    file << j.dump();
+  } catch(std::exception &e) {
+    std::cout << "Exception caught: " << e.what() << std::endl;
+  }
   file.close();
 }
 
@@ -160,7 +165,11 @@ void Index::save_index_to_filesystem() {
 void Index::retrieve_index_from_filesystem() {
   std::ifstream input(index_path + "/index_data.json");
   json load;
-  input >> load;
+  try {
+    input >> load;
+  } catch(std::exception &e) {
+    std::cout << "Exception caught: " << e.what() << std::endl;
+  }
   input.close();
   
   tfidf_index = load.get<std::unordered_map<std::string, std::unordered_map<std::string, double>>>();
