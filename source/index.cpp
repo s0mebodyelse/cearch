@@ -1,15 +1,31 @@
 #include "index.h"
-#include <exception>
-#include <fstream>
 
-Index::Index(std::string directory, std::string index_path, int threads):
-  index_path(index_path), threads(threads)
+Index::Index(std::string directory, std::string index_path, int thread_num):
+  index_path(index_path), thread_num(thread_num)
 {
-  /* TODO Check if there is an index in the index directory, then retrive the index */
+  /* TODO Check if there is an index in the index directory, then retrive the index 
+   *  Afterwards run an incremental rebuild of the index (check modified and indexed date)
+   * */
   const auto start{std::chrono::steady_clock::now()};
+
   build_index(directory);
-  calculate_tfidf_index();
+  int files_per_thread = get_document_counter() / thread_num;
+
+  for (int i = 0; i < thread_num; ++i) {
+    int start_index = i * files_per_thread;
+    int end_index = (i == thread_num) ? get_document_counter() : (i + 1) * files_per_thread;
+
+    std::cout << "Start index: " << start_index << " End index: " << end_index << std::endl;
+
+    threads.emplace_back([this, start_index, end_index](){ this->calculate_tfidf_index(start_index, end_index); });
+  }
+
+  for(std::thread &thread: threads) {
+    thread.join();
+  }
+
   const auto end{std::chrono::steady_clock::now()};
+
   const std::chrono::duration<double> elapsed_seconds{end - start};
   std::cout << "Building index took: " << elapsed_seconds.count() << "s" << std::endl;
   std::cout << "Indexed Documents: " << get_document_counter() << std::endl;
@@ -52,7 +68,7 @@ std::vector<std::pair<std::string, double>> Index::retrieve_result(const std::ve
 
 void Index::print_documents_in_index() {
   for (auto &i: documents_per_path) {
-    std::cout << i.first << " : " << i.second->get_filepath() << std::endl;
+    std::cout << i->get_filepath() << std::endl;
   }
 }
 
@@ -102,7 +118,7 @@ int Index::build_index(std::string directory) {
         try {
           std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
           /* documents are then moved to the Index Object and can be accessed by their path */
-          documents_per_path[new_doc->get_filepath()] = std::move(new_doc);
+          documents_per_path.push_back(std::move(new_doc));
         } catch(std::exception &e) {
           std::cerr << "Exception caught: " << e.what() << std::endl;
         }
@@ -117,22 +133,27 @@ int Index::build_index(std::string directory) {
 }
 
 /* calculates the tfidf for every document in the index */
-void Index::calculate_tfidf_index(){
+void Index::calculate_tfidf_index(int start_index, int end_index){
   std::cout << "Calculating tfidf index" << std::endl;
-  /* use threads? */
-  for (auto &doc: documents_per_path) {
+
+  for (int i = start_index; i < end_index; ++i) {
+    std::string file_path = documents_per_path[i]->get_filepath();
     std::unordered_map<std::string, double> tfidf_entries;
-    for(auto &term: doc.second->get_index()) {
-      double tfidf = doc.second->get_term_frequency(term.first) * inverse_doc_frequency(term.first, documents_per_path);
+
+    for(auto &term: documents_per_path[i]->get_index()) {
+      double tfidf = documents_per_path[i]->get_term_frequency(term.first) * inverse_doc_frequency(term.first, documents_per_path);
+
       if (tfidf > 0.0) {
         tfidf_entries.insert({term.first, tfidf});
       }
     }
-    tfidf_index[doc.second->get_filepath()] = tfidf_entries; 
+    
+    std::lock_guard<std::mutex> lock(mtx);
+    tfidf_index[file_path] = tfidf_entries; 
   }
 }
 
-double Index::inverse_doc_frequency(std::string term, const std::unordered_map<std::string, std::unique_ptr<Document>> &corpus) {
+double Index::inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus) {
   /* number of documents where the term appears */
   double term_count = 0.0;
   /* total number of documents in the corpus */
@@ -140,7 +161,7 @@ double Index::inverse_doc_frequency(std::string term, const std::unordered_map<s
   
   /* count the occurance of a term in every document */
   for (auto &doc: corpus) {
-    if (doc.second->contains_term(term)) {
+    if (doc->contains_term(term)) {
       term_count++;
     }
   }

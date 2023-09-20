@@ -22,28 +22,29 @@ using tcp = net::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
 
 std::string read_html_file(const std::string& file_path)
 {
-    std::ifstream file(file_path);
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open HTML file: " + file_path);
-    }
+  std::ifstream file(file_path);
+  if (!file.is_open()) {
+    throw std::runtime_error("Failed to open HTML file: " + file_path);
+  }
 
-    std::string html_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    return html_content;
+  std::string html_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+  return html_content;
 }
 
 
 int main(int argc, const char *argv[]) {
-    if (argc != 4) {
-        std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in>";
-        return 1;
+    if (argc != 5) {
+      std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in> <number of threads to use>";
+      return 1;
     }
     
     int port = atoi(argv[1]);
     std::string directory = argv[2];
     std::string index_path = argv[3];
+    int threads = atoi(argv[4]);
 
     /* init the index */
-    Index idx(directory, index_path, 4);
+    Index idx(directory, index_path, threads);
 
     /* run a http server */    
     try {
