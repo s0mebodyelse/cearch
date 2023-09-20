@@ -17,7 +17,6 @@ Index::Index(std::string directory, std::string index_path, int threads):
   
   std::cout << "saving index to filesystem" << std::endl;
   save_index_to_filesystem();
-  dump_tfidf_index_to_file("./dump.txt");
 }
 
 /* queries the index and returns the result ordered by tfidf ranking */
