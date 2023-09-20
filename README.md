@@ -10,7 +10,7 @@ make
 ./cearch 8080 docs.gl index
 
 # time without threading
-./docs.gl -> 227.4s
+./docs.gl -> 169.1s
 ./docs.gl/gl4/ -> 7.5s
 
 # Time to build the index
@@ -39,17 +39,18 @@ Body: input-text=bind+texture%2C+to+buffer.
 
 # Output on docs.gl
 Body: input-text=bind+texture%2C+to+buffer.
-./docs.gl/gl3/glBindTexture.xhtml => 0.648574
-./docs.gl/gl4/glBindTexture.xhtml => 0.622337
-./docs.gl/gl4/glGetTexParameter.xhtml => 0.601042
-./docs.gl/gl2/glGetTexLevelParameter.xhtml => 0.599861
-./docs.gl/gl3/glTexParameter.xhtml => 0.592914
-./docs.gl/gl4/glFramebufferTexture.xhtml => 0.565869
-./docs.gl/gl4/glGetTexLevelParameter.xhtml => 0.56382
-./docs.gl/gl4/glTexParameter.xhtml => 0.561648
-./docs.gl/gl3/glFramebufferTexture.xhtml => 0.559374
-./docs.gl/gl3/glGetTexLevelParameter.xhtml => 0.549945
-./docs.gl/gl3/glGetTexParameter.xhtml => 0.522843
-./docs.gl/gl4/glTextureView.xhtml => 0.511865
-./docs.gl/gl2/glGetTexParameter.xhtml => 0.4952
-./docs.gl/specs/gl.xml => 0.477704
+./docs.gl/gl3/glBindTexture.xhtml => 0.62961
+./docs.gl/gl4/glBindTexture.xhtml => 0.60404
+./docs.gl/gl4/glGetTexParameter.xhtml => 0.583459
+./docs.gl/gl2/glGetTexLevelParameter.xhtml => 0.582312
+./docs.gl/gl3/glTexParameter.xhtml => 0.575568
+./docs.gl/gl4/glFramebufferTexture.xhtml => 0.549065
+./docs.gl/gl4/glGetTexLevelParameter.xhtml => 0.546375
+./docs.gl/gl4/glTexParameter.xhtml => 0.545217
+./docs.gl/gl3/glFramebufferTexture.xhtml => 0.542859
+./docs.gl/gl3/glGetTexLevelParameter.xhtml => 0.53365
+./docs.gl/gl3/glGetTexParameter.xhtml => 0.507547
+./docs.gl/gl4/glTextureView.xhtml => 0.496796
+./docs.gl/gl2/glGetTexParameter.xhtml => 0.480713
+./docs.gl/gl2/glTexParameter.xhtml => 0.46361
+./docs.gl/specs/gl.xml => 0.460636

@@ -1,4 +1,5 @@
 #include "index.h"
+#include <exception>
 #include <fstream>
 
 Index::Index(std::string directory, std::string index_path, int threads):
@@ -99,10 +100,13 @@ int Index::build_index(std::string directory) {
         std::string filepath = entry.path();
         std::string file_extension = std::filesystem::path(entry.path()).extension();
         /* on creation the document get indexed (clean words in the doc and there occurance counter) */
-        std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
-
-        /* documents are then moved to the Index Object and can be accessed by their path */
-        documents_per_path[new_doc->get_filepath()] = std::move(new_doc);
+        try {
+          std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
+          /* documents are then moved to the Index Object and can be accessed by their path */
+          documents_per_path[new_doc->get_filepath()] = std::move(new_doc);
+        } catch(std::exception &e) {
+          std::cerr << "Exception caught: " << e.what() << std::endl;
+        }
       }
     }
     return 0;

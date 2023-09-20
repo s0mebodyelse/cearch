@@ -1,5 +1,6 @@
 #include "document.h"
 #include <memory>
+#include <stdexcept>
 
 /* Base Document Class */
 Document::Document(const std::string &filepath, const std::string &file_extension):
@@ -142,6 +143,6 @@ std::unique_ptr<Document> Document_factory::create_document(const std::string &f
   if (extension == ".xml" || extension == ".xhtml") {
     return std::make_unique<XML_Document>(filepath);
   }
-
-  return std::make_unique<Document>(filepath, "unknown");
+  
+  throw std::runtime_error(std::string("Document with extension ") + extension + " not supported");
 };
