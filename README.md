@@ -14,15 +14,15 @@ make
 ./docs.gl/gl4/ -> 7.0s
 
 # Time to build the index with threads
-./docs.gl 
-    1 thread-> 112.7s
-    4 thread-> 43.6s
-    8 thread-> 35.2s
+- ./docs.gl 
+    - 1 thread-> 112.7s
+    - 4 thread-> 43.6s
+    - 8 thread-> 35.2s
 
-./docs.gl/gl4 
-    1 thread -> 7.0s
-    4 thread -> 3.8s
-    8 thread -> 3.4s
+- ./docs.gl/gl4 
+    - 1 thread -> 7.0s
+    - 4 thread -> 3.8s
+    - 8 thread -> 3.4s
 
 # Output on docs.gl/gl4
 Body: input-text=bind+texture%2C+to+buffer.
