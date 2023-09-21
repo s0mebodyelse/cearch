@@ -34,13 +34,8 @@ public:
 
 private:
   /* holds every Path to a Document and the corresponding Document */
-<<<<<<< HEAD
-  std::unordered_map<std::string, std::unique_ptr<Document>> documents_per_path;
-  /* Holds the path to a document and the precalculated tfidf values per term */
-=======
   std::vector<std::unique_ptr<Document>> documents_per_path;
   /* Holds the path to a document and the precalculate_tfidf values per term */
->>>>>>> feature_threads
   std::unordered_map<std::string, std::unordered_map<std::string, double>> tfidf_index;
   /* holds the path to the index on the filesystem */
   std::string index_path;
