@@ -10,6 +10,10 @@ Document::Document(const std::string &filepath, const std::string &file_extensio
   indexed_at = std::chrono::system_clock::now();
 }
 
+Document::~Document() {
+
+}
+
 std::string Document::read_content() {
   std::ifstream file(filepath);
   if (!file.is_open()) {

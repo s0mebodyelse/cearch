@@ -1,10 +1,10 @@
 #include "index.h"
 
-Index::Index(std::string directory, std::string index_path, int thread_num):
-  index_path(index_path), thread_num(thread_num)
+Index::Index(std::string directory, std::string index_path, int threads_used):
+  index_path(index_path), thread_num(threads_used)
 {
   /* TODO Check if there is an index in the index directory, then retrive the index 
-   *  Afterwards run an incremental rebuild of the index (check modified and indexed date)
+   *  Afterwards run an incremental rebuild of the index (check document modified and indexed date)
    * */
   const auto start{std::chrono::steady_clock::now()};
 
@@ -33,6 +33,10 @@ Index::Index(std::string directory, std::string index_path, int thread_num):
   
   std::cout << "saving index to filesystem" << std::endl;
   save_index_to_filesystem();
+}
+
+Index::~Index() {
+
 }
 
 /* queries the index and returns the result ordered by tfidf ranking */
@@ -198,6 +202,3 @@ void Index::retrieve_index_from_filesystem() {
   
   tfidf_index = load.get<std::unordered_map<std::string, std::unordered_map<std::string, double>>>();
 }
-
-
-

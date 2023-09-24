@@ -24,6 +24,7 @@ using json = nlohmann::json;
 class Index {
 public:
   Index(std::string directory, std::string index_path, int thread_num);
+  ~Index();
   /* calculates a ranking from tfidf index and returns the documents with the highest rank, based on the input */
   std::vector<std::pair<std::string, double>> retrieve_result(const std::vector<std::string> &input_values);
   void print_documents_in_index();

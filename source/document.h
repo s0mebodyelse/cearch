@@ -21,6 +21,9 @@
 class Document {
   public:
     Document(const std::string &filepath, const std::string &file_extension);
+    /* Document has virtual functions, so it need a virtual destructor */
+    virtual ~Document() = 0;
+
     std::string get_file_content_as_string();
     std::unordered_map<std::string, int> get_index();
     std::string get_filepath();
