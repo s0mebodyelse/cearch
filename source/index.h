@@ -50,6 +50,7 @@ private:
   void calculate_tfidf_index(int start_index, int end_index);
   void save_index_to_filesystem();
   void retrieve_index_from_filesystem();
+  bool index_exists_on_filesystem();
 };
 
 #endif

@@ -3,12 +3,15 @@
 Index::Index(std::string directory, std::string index_path, int threads_used):
   index_path(index_path), thread_num(threads_used)
 {
-  /* TODO Check if there is an index in the index directory, then retrive the index 
-   *  Afterwards run an incremental rebuild of the index (check document modified and indexed date)
-   * */
-  const auto start{std::chrono::steady_clock::now()};
+  /* check if an index already exists on the filesystem 
+  if (index_exists_on_filesystem()) {
+    retrieve_index_from_filesystem();
+  } */
 
+  const auto start{std::chrono::steady_clock::now()};
+  /* start building the index */
   build_index(directory);
+
   int files_per_thread = get_document_counter() / thread_num;
 
   for (int i = 0; i < thread_num; ++i) {
@@ -179,14 +182,27 @@ double Index::inverse_doc_frequency(std::string term, const std::vector<std::uni
 
 /* saves the index as json to index_path */
 void Index::save_index_to_filesystem() {
-  json j =  tfidf_index;
-  std::ofstream file(index_path + "/index_data.json");
+  json j_tfidf =  tfidf_index;
+  json j_documents;
+
+  /* serialize the document objects */
+  for (auto &doc: documents_per_path) {
+    json json_object = doc->serialize_to_json();
+    j_documents.push_back(json_object);
+  }
+
+  std::ofstream tfidf_file(index_path + "/index_tfidf.json");
+  std::ofstream doc_file(index_path + "/index_docs.json");
+
   try {
-    file << j.dump();
+    tfidf_file << j_tfidf.dump();
+    doc_file << j_documents.dump();
   } catch(std::exception &e) {
     std::cout << "Exception caught: " << e.what() << std::endl;
   }
-  file.close();
+    
+  tfidf_file.close();
+  doc_file.close();
 }
 
 /* retrieves the index back from the filesystem */
@@ -201,4 +217,9 @@ void Index::retrieve_index_from_filesystem() {
   input.close();
   
   tfidf_index = load.get<std::unordered_map<std::string, std::unordered_map<std::string, double>>>();
+}
+
+bool Index::index_exists_on_filesystem() {
+  const std::string file_path = index_path + "index_data.json";
+  return std::filesystem::exists(file_path) && std::filesystem::is_regular_file(file_path);
 }
