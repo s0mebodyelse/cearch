@@ -82,8 +82,10 @@ void Document::index_document() {
   }
 }
 
-/* checks index at time against the last modified of the file 
-* if the file was modified after it was indexed, it needs to be indexed again
+/* 
+* checks indexed_at time against the last modification of the file 
+* if the file was modified after it was indexed, it needs to be indexed again, 
+* and the function returns true, otherwise the function returns false
 */
 bool Document::needs_reindexing() {
   try {
@@ -96,6 +98,13 @@ bool Document::needs_reindexing() {
   }
 }
 
+/* 
+ *  Serializes a Document Object into a JSON, 
+    {"filepath", this->get_filepath()},
+    {"extension", this->get_extension()},
+    {"indexedat", ms_since_epoch},
+    {"index", index}
+ */
 const nlohmann::json Document::serialize_to_json() {
   /* convert std::chrono indexed at to milliseconds since epoch */
   auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(indexed_at.time_since_epoch()).count();

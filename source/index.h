@@ -2,6 +2,7 @@
 #define _H_INDEX
 
 #include <iostream>
+#include <stdexcept>
 #include <mutex>
 #include <string>
 #include <filesystem>
@@ -36,7 +37,7 @@ public:
 private:
   /* holds every Path to a Document and the corresponding Document */
   std::vector<std::unique_ptr<Document>> documents_per_path;
-  /* Holds the path to a document and the precalculate_tfidf values per term */
+  /* Holds the path to a document and its tdidf score per term */
   std::unordered_map<std::string, std::unordered_map<std::string, double>> tfidf_index;
   /* holds the path to the index on the filesystem */
   std::string index_path;
@@ -44,7 +45,9 @@ private:
   std::mutex mtx;
   std::vector<std::thread> threads;
   
-  int build_index(std::string index_directory);
+  void build_document_index(std::string directory);
+  void build_tfidf_index();
+  void rebuild_index();
   /* calculates the inverse_doc_frequency of a term on the whole corpus */
   double inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus);
   void calculate_tfidf_index(int start_index, int end_index);

@@ -31,7 +31,6 @@ std::string read_html_file(const std::string& file_path)
   return html_content;
 }
 
-
 int main(int argc, const char *argv[]) {
     if (argc != 5) {
       std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in> <number of threads to use>";
@@ -62,7 +61,7 @@ int main(int argc, const char *argv[]) {
           http::response<http::dynamic_body> response;
           http::read(socket, buffer, request);
           
-          /* prepare respnse */
+          /* prepare response */
           response.version(request.version());
           response.result(http::status::ok);
           response.set(http::field::server, "Boost Beast");
