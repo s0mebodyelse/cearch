@@ -8,15 +8,16 @@
 #include <regex>
 #include <filesystem>
 #include <queue>
-#include <memory>
 #include <unordered_map>
 #include <chrono>
 #include <fstream>
+#include <utility>
+#include <memory>
+#include <stdexcept>
 
 /* XML Parsing */
 #include <pugixml.hpp>
-#include <utility>
-
+#include <nlohmann/json.hpp>
 
 class Document {
   public:
@@ -27,11 +28,15 @@ class Document {
     std::string get_file_content_as_string();
     std::unordered_map<std::string, int> get_index();
     std::string get_filepath();
+    std::string get_extension();
+
     double get_term_frequency(std::string term);
     bool contains_term(std::string term);
     static std::vector<std::string> clean_word(std::string &word);
     void print_index();
     void index_document();
+    bool needs_reindexing();
+    const nlohmann::json serialize_to_json();
 
     /* reads only the actual content, is implemented in the derived classes */
     virtual std::string read_content();
@@ -39,8 +44,8 @@ class Document {
   protected:
     std::string filepath; 
     std::string file_extension;
-    std::chrono::time_point<std::chrono::system_clock> indexed_at;
-    
+    std::chrono::system_clock::time_point indexed_at;
+    /* every term in the document and counter */
     std::unordered_map<std::string, int> index;
 };
 

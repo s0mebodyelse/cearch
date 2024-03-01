@@ -1,19 +1,30 @@
-# Cearch
+## Cearch
 inspired by https://github.com/tsoding/seroost
 
 Local Search engine with Web Interface
 
-# Build the project
+### Todos
+- build a threadpool 
+- build a scheduler to reindex e.g. every 5 Minutes
+- Config file?
+- improve CLI?
+
+## Dependencies
+- Pugixml (libpugixml-dev)
+- Boost Asio (libboost-all-dev)
+- nlohmann json (nlohmann-json3-dev)
+
+## Build the project
 make 
 
-# Run Cearch
+## Run Cearch
 ./cearch 8080 docs.gl index
 
-# time without threading
+## time without threading
 ./docs.gl -> 169.1s
 ./docs.gl/gl4/ -> 7.0s
 
-# Time to build the index with threads
+## Time to build the index with threads
 - ./docs.gl 
     - 1 thread-> 112.7s
     - 4 thread-> 43.6s
@@ -24,7 +35,7 @@ make
     - 4 thread -> 3.8s
     - 8 thread -> 3.4s
 
-# Output on docs.gl/gl4
+## Output on docs.gl/gl4
 Body: input-text=bind+texture%2C+to+buffer.
 ./docs.gl/gl4/glBindTexture.xhtml => 0.5508
 ./docs.gl/gl4/glGetTexParameter.xhtml => 0.54052
@@ -37,7 +48,7 @@ Body: input-text=bind+texture%2C+to+buffer.
 ./docs.gl/gl4/glTexImage2D.xhtml => 0.285143
 ./docs.gl/gl4/glBindTextureUnit.xhtml => 0.272632
 
-# Output on docs.gl
+## Output on docs.gl
 Body: input-text=bind+texture%2C+to+buffer.
 ./docs.gl/gl3/glBindTexture.xhtml => 0.62961
 ./docs.gl/gl4/glBindTexture.xhtml => 0.60404

@@ -10,7 +10,7 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
 
-/* custom index headers */
+/* cearch headers */
 #include "index.h"
 #include "document.h"
 
@@ -31,8 +31,8 @@ std::string read_html_file(const std::string& file_path)
   return html_content;
 }
 
-
 int main(int argc, const char *argv[]) {
+    /* read configuration from command line */
     if (argc != 5) {
       std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in> <number of threads to use>";
       return 1;
@@ -62,7 +62,7 @@ int main(int argc, const char *argv[]) {
           http::response<http::dynamic_body> response;
           http::read(socket, buffer, request);
           
-          /* prepare respnse */
+          /* prepare response */
           response.version(request.version());
           response.result(http::status::ok);
           response.set(http::field::server, "Boost Beast");
@@ -72,42 +72,42 @@ int main(int argc, const char *argv[]) {
           /* handle post request, aka. calculate the tfidf and display a result */
           std::vector<std::string> input_values;
           if (request.method() == http::verb::post) {
-              std::string input_value;
-              if (request.body().size() > 0) {
-                  /* parse the input field, assumong its name is "input-text" */
-                  std::string request_body = beast::buffers_to_string(request.body().data());
-                  std::cout << "Body: " << request_body << std::endl;
-                  size_t start_pos = request_body.find("input-text=");
-                  if (start_pos != std::string::npos) {
-                      /* move past the name to get the value */
-                      start_pos += std::strlen("input-text=");
-                      size_t end_pos = request_body.find("&", start_pos);
-                      input_value = request_body.substr(start_pos, end_pos - start_pos);
-                  }
-              }
-
-              /* extract every single word from input value */
-              input_values = Document::clean_word(input_value);
-              
-              /* retrieve the result from the index */
-              std::vector<std::pair<std::string, double>> result;
-              if (!input_values.empty()) {
-                result = idx.retrieve_result(input_values);
-              }
-
-              /* insert result into index.html */      
-              size_t pos = html_body.find("<table>") + strlen("<table>");
-              if (pos != std::string::npos) {
-                std::ostringstream oss;
-                for (auto &i: result) {
-                  oss << "<tr><td>" << i.first << " => " << i.second << "</td></tr>";
+            std::string input_value;
+            if (request.body().size() > 0) {
+                /* parse the input field, assumong its name is "input-text" */
+                std::string request_body = beast::buffers_to_string(request.body().data());
+                std::cout << "Body: " << request_body << std::endl;
+                size_t start_pos = request_body.find("input-text=");
+                if (start_pos != std::string::npos) {
+                    /* move past the name to get the value */
+                    start_pos += std::strlen("input-text=");
+                    size_t end_pos = request_body.find("&", start_pos);
+                    input_value = request_body.substr(start_pos, end_pos - start_pos);
                 }
-                std::string result_table = oss.str();
-                html_body.insert(pos, result_table);
-              } else {
-                std::cerr << "Couldnt find table in html body, no results shown";
+            }
+
+            /* extract every single word from input value */
+            input_values = Document::clean_word(input_value);
+            
+            /* retrieve the result from the index */
+            std::vector<std::pair<std::string, double>> result;
+            if (!input_values.empty()) {
+              result = idx.retrieve_result(input_values);
+            }
+
+            /* insert result into index.html */      
+            size_t pos = html_body.find("<table>") + strlen("<table>");
+            if (pos != std::string::npos) {
+              std::ostringstream oss;
+              for (auto &i: result) {
+                oss << "<tr><td>" << i.first << " => " << i.second << "</td></tr>";
               }
-            }              
+              std::string result_table = oss.str();
+              html_body.insert(pos, result_table);
+            } else {
+              std::cerr << "Couldnt find table in html body, no results shown";
+            }
+          }              
 
           /* send the response with the result */
           beast::ostream(response.body()) << html_body;

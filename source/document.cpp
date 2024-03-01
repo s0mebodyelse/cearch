@@ -1,6 +1,4 @@
 #include "document.h"
-#include <memory>
-#include <stdexcept>
 
 /* Base Document Class */
 Document::Document(const std::string &filepath, const std::string &file_extension):
@@ -35,6 +33,10 @@ std::unordered_map<std::string, int> Document::get_index() {
 
 std::string Document::get_filepath() {
   return filepath;
+}
+
+std::string Document::get_extension() {
+  return file_extension;
 }
 
 double Document::get_term_frequency(std::string term) {
@@ -78,6 +80,41 @@ void Document::index_document() {
       }
     }
   }
+}
+
+/* 
+* checks indexed_at time against the last modification of the file 
+* if the file was modified after it was indexed, it needs to be indexed again, 
+* and the function returns true, otherwise the function returns false
+*/
+bool Document::needs_reindexing() {
+  try {
+    std::filesystem::file_time_type ftime = std::filesystem::last_write_time(this->get_filepath());
+    std::chrono::time_point tp = std::chrono::file_clock::to_sys(ftime);
+    return tp > this->indexed_at;
+  } catch (std::exception &e) {
+    std::cerr << "Error ocurred: " << e.what() << std::endl;
+    return false;
+  }
+}
+
+/* 
+ *  Serializes a Document Object into a JSON, 
+    {"filepath", this->get_filepath()},
+    {"extension", this->get_extension()},
+    {"indexedat", ms_since_epoch},
+    {"index", index}
+ */
+const nlohmann::json Document::serialize_to_json() {
+  /* convert std::chrono indexed at to milliseconds since epoch */
+  auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(indexed_at.time_since_epoch()).count();
+
+  return {
+    {"filepath", this->get_filepath()},
+    {"extension", this->get_extension()},
+    {"indexedat", ms_since_epoch},
+    {"index", index}
+  };
 }
 
 std::vector<std::string> Document::clean_word(std::string &word) {
