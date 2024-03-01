@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 /* 
- * The directory is the directory which is read and indexed, the index_path is used to save the index as a json
+ * The directory is the directory which is read and indexed, the index_path is used to save the index as a json,
  * by using threads the speed if indexing a directory can be increased 
  */
 Index::Index(std::string directory, std::string index_path, int threads_used):
@@ -49,7 +49,7 @@ std::vector<std::pair<std::string, double>> Index::retrieve_result(const std::ve
           << doc.first << " " << e.what() << std::endl;
       }
     }
-    /* we take the document to the result, only if its rank is above 0.01 */
+    /* add the document to the result, only if its rank is above 0.01 */
     if (rank > 0.01) {
         result.push_back(std::make_pair(doc.first, rank));
     }
@@ -155,8 +155,8 @@ void Index::build_tfidf_index() {
 
 /*
  * Used to be run in specific intervall, to rebuild the index
- * checks the Document index and reindexes changed documens,
- * if the documents change, the tfidf index also has to be rebuild
+ * checks the Document index and reindexes changed documents,
+ * if the documents changed, the index also has to be rebuild
  */
 void Index::rebuild_index() {
   bool reindex_tfidf = false;
@@ -184,7 +184,7 @@ void Index::rebuild_index() {
  * To be run the build document index has to be complete
  */
 void Index::calculate_tfidf_index(int start_index, int end_index){
-  std::cout << "Calculating tfidf index" << std::endl;
+  std::cout << "Calculating tfidf index " << std::endl;
 
   for (int i = start_index; i < end_index; ++i) {
     std::string file_path = documents_per_path[i]->get_filepath();

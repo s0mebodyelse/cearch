@@ -19,7 +19,6 @@
 #include <pugixml.hpp>
 #include <nlohmann/json.hpp>
 
-
 class Document {
   public:
     Document(const std::string &filepath, const std::string &file_extension);
@@ -46,6 +45,7 @@ class Document {
     std::string filepath; 
     std::string file_extension;
     std::chrono::system_clock::time_point indexed_at;
+    /* every term in the document and counter */
     std::unordered_map<std::string, int> index;
 };
 

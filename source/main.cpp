@@ -10,7 +10,7 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
 
-/* custom index headers */
+/* cearch headers */
 #include "index.h"
 #include "document.h"
 
@@ -32,6 +32,7 @@ std::string read_html_file(const std::string& file_path)
 }
 
 int main(int argc, const char *argv[]) {
+    /* read configuration from command line */
     if (argc != 5) {
       std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in> <number of threads to use>";
       return 1;
