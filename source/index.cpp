@@ -1,6 +1,4 @@
 #include "index.h"
-#include <chrono>
-#include <stdexcept>
 
 /* 
  * The directory is the directory which is read and indexed, the index_path is used to save the index as a json,
