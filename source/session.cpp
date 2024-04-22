@@ -2,16 +2,13 @@
 
 using boost::asio::ip::tcp;
 
-Session::Session(tcp::socket socket, boost::asio::io_context &io_context, Index &idx)
+Session::Session(tcp::socket socket, Index &idx)
         :   socket(std::move(socket)), 
-            context(io_context),
             idx(idx)
 {       
-    std::cout << "Session started" << std::endl;
 }
 
 Session::~Session(){
-    std::cout << "Session ended" << std::endl;
 }
 
 void Session::start() {

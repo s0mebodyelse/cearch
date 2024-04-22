@@ -1,17 +1,34 @@
 #include "document.h"
 
 /* Base Document Class */
-Document::Document(const std::string &filepath, const std::string &file_extension):
+Document::Document(
+  std::string filepath, std::string file_extension):
   filepath(filepath), file_extension(file_extension)
 {
-  index_document();
-  indexed_at = std::chrono::system_clock::now();
+  	index_document();
+  	indexed_at = std::chrono::system_clock::now();
 }
 
-Document::~Document() {
+/* constructor the be used for reading from json file */
+Document::Document(
+  std::string filepath, 
+  std::string file_extension, 
+  std::chrono::system_clock::time_point indexed_at,
+  std::unordered_map<std::string, int> concordance,
+  std::unordered_map<std::string, double> tfidf_scores
+):
+  filepath(std::move(filepath)), file_extension(std::move(file_extension)),
+  indexed_at(indexed_at), concordance(std::move(concordance)),
+  tfidf_scores(std::move(tfidf_scores)) 
+{
 
 }
 
+Document::~Document() {}
+
+/*
+*	returns the raw content of a Document as a String
+*/
 std::string Document::read_content() {
   std::ifstream file(filepath);
   if (!file.is_open()) {
@@ -22,14 +39,26 @@ std::string Document::read_content() {
   return content;
 }
 
-std::string Document::get_file_content_as_string() {
-  std::string file_content = read_content();
-  return file_content;
+std::unordered_map<std::string, int> Document::get_concordance() {
+  return concordance;
 }
 
-std::unordered_map<std::string, int> Document::get_index() {
-  return index;
+void Document::insert_tfidf_score(std::pair<std::string, double> tfidf_score) {
+  tfidf_scores.insert(tfidf_score);
 }
+
+/* 
+* 	returns the tfidf score of the term 
+* 	returns 0 if the term is not in the Document
+*/
+double Document::get_tfidf_score(const std::string &term) {
+  if (tfidf_scores.contains(term)) {
+    return tfidf_scores.at(term);
+  } 
+
+  return 0.0;
+}
+
 
 std::string Document::get_filepath() {
   return filepath;
@@ -39,47 +68,70 @@ std::string Document::get_extension() {
   return file_extension;
 }
 
-double Document::get_term_frequency(std::string term) {
-  if (index.find(term) != index.end()) {
-    return static_cast<double>(index.at(term)) / index.size();
+/* number of times, a word occurs in a given document */
+int Document::get_term_frequency(const std::string &term) {
+  if (concordance.find(term) != concordance.end()) {
+    return concordance.at(term);
   } 
-  return 0.0;
+
+  return 0;
 }
 
-bool Document::contains_term(std::string term) {
-  if (index.find(term) != index.end()) {
+std::string Document::get_file_content_as_string() {
+  std::string file_content = read_content();
+  return file_content;
+}
+
+bool Document::contains_term(const std::string &term) {
+  if (concordance.find(term) != concordance.end()) {
     return true;
   }
   return false;
-}
-
-void Document::print_index() {
-  std::cout << "Index of " << filepath << ":" << std::endl;
-  for (auto &i: index) {
-    std::cout << i.first << " : " << i.second << std::endl;
-  }
 }
 
 void Document::index_document() {
   std::string word;
   std::istringstream iss(get_file_content_as_string());
   
+  std::cout << "Indexing doc : " << this->get_filepath() << std::endl;
+
   while (iss >> word) {
     /* split the word if necessary */
     std::vector<std::string> clean_words = clean_word(word);
     for (auto &clean_word: clean_words) {
-      if (clean_word.length() < 4) {
-        continue;
-      }
       if (clean_word.find_first_not_of(' ') != std::string::npos) {
-        if (index.find(clean_word) != index.end()){
-          index[clean_word]++;
+        if (concordance.find(clean_word) != concordance.end()){
+          concordance[clean_word]++;
         } else {
-          index[clean_word] = 1;
+          concordance[clean_word] = 1;
         }
       }
     }
   }
+}
+
+std::vector<std::string> Document::clean_word(std::string &word) {
+    std::vector<std::string> clean_words;
+    /* transform tolower */
+    std::transform(word.begin(), word.end(), word.begin(),
+        [](auto c){
+            return std::tolower(c);
+        }
+    );
+
+    /* remove special characters */
+    std::replace_if(word.begin(), word.end(), 
+        [](auto c) {return std::ispunct(c) || std::isdigit(c);},
+    ' ');
+
+    /* split the word if neccessary and append to result vector */
+    std::stringstream iss(word);
+    std::string split_word;
+    while (iss >> split_word) {
+        clean_words.push_back(split_word);
+    }
+
+    return clean_words;
 }
 
 /* 
@@ -99,13 +151,9 @@ bool Document::needs_reindexing() {
 }
 
 /* 
- *  Serializes a Document Object into a JSON, 
-    {"filepath", this->get_filepath()},
-    {"extension", this->get_extension()},
-    {"indexedat", ms_since_epoch},
-    {"index", index}
- */
-const nlohmann::json Document::serialize_to_json() {
+*	Converts a Document into a json structure
+*/
+const json Document::serialize_to_json() {
   /* convert std::chrono indexed at to milliseconds since epoch */
   auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(indexed_at.time_since_epoch()).count();
 
@@ -113,41 +161,43 @@ const nlohmann::json Document::serialize_to_json() {
     {"filepath", this->get_filepath()},
     {"extension", this->get_extension()},
     {"indexedat", ms_since_epoch},
-    {"index", index}
+    {"index", concordance},
+    {"tfidf_scores", tfidf_scores}
   };
 }
 
-std::vector<std::string> Document::clean_word(std::string &word) {
-    std::vector<std::string> clean_words;
-
-    /* transform tolower */
-    std::transform(word.begin(), word.end(), word.begin(),
-        [](auto c){
-            return std::tolower(c);
-        }
-    );
-
-    /* remove special character */
-    std::replace_if(word.begin(), word.end(), 
-        [](auto c) {return std::ispunct(c) || std::isdigit(c);},
-    ' ');
-
-    /* split the word if neccessary and append to result vector */
-    std::stringstream iss(word);
-    std::string split_word;
-
-    while (iss >> split_word) {
-        clean_words.push_back(split_word);
-    }
-
-    return clean_words;
+Document Document::from_json(const json &j) {
+  return Document(
+    j.at("filepath").get<std::string>(),
+    j.at("extension").get<std::string>(),
+    std::chrono::system_clock::from_time_t(j.at("indexedat")),
+    j.at("index").get<std::unordered_map<std::string, int>>(),
+    j.at("tfidf_scores").get<std::unordered_map<std::string, double>>()
+  );
 }
+
+/* Document Factory implementation */
+std::unique_ptr<Document> Document_factory::create_document(const std::string &filepath, const std::string &extension) {
+  if (extension == ".xml" || extension == ".xhtml") {
+    return std::make_unique<XML_Document>(filepath);
+  }
+
+  if (extension == ".txt") {
+    return std::make_unique<Text_Document>(filepath);
+    std::cout << "txt doc" << std::endl;
+  }
+  
+  throw std::runtime_error(std::string("Document with extension ") + extension + " not supported");
+};
 
 /* XML Specific Documents */
 XML_Document::XML_Document(const std::string &filepath):
   Document(filepath, "xml") 
 {
-  index_document();
+}
+
+XML_Document::~XML_Document() {
+
 }
 
 std::string XML_Document::read_content() {
@@ -179,11 +229,13 @@ void XML_Document::traverse_nodes(const pugi::xml_node& root_node, std::string &
     }
   }
 }
-/* Document Factory implementation */
-std::unique_ptr<Document> Document_factory::create_document(const std::string &filepath, const std::string &extension) {
-  if (extension == ".xml" || extension == ".xhtml") {
-    return std::make_unique<XML_Document>(filepath);
-  }
-  
-  throw std::runtime_error(std::string("Document with extension ") + extension + " not supported");
-};
+
+/* Text Document stuff */
+Text_Document::Text_Document(const std::string &filepath):
+	Document(filepath, "txt")
+{
+}
+
+Text_Document::~Text_Document() {
+
+}

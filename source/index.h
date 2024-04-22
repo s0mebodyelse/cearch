@@ -18,6 +18,7 @@
 #include <chrono>
 #include <stdexcept>
 
+#include <boost/asio.hpp>
 #include <nlohmann/json.hpp>
 
 #include "document.h"
@@ -30,19 +31,22 @@ class Index {
     ~Index();
     /* calculates a ranking from tfidf index and returns the documents with the highest rank, based on the input */
     std::vector<std::pair<std::string, double>> retrieve_result(const std::vector<std::string> &input_values);
-    void print_documents_in_index();
-    void print_tfidf_index_documents();
-    void dump_tfidf_index_to_file(std::string filepath);
+
+    /* helper functions */
     int get_document_counter();
-    int get_indexed_token_count();
 
   private:
     /* vector of all Documents in the index */
-    std::vector<std::unique_ptr<Document>> documents_per_path;
-    /* Holds the path to a document and its tdidf score per term */
+    std::vector<std::unique_ptr<Document>> documents;
+
+    /* Holds the path to a document and its tfidf score per term */
     std::unordered_map<std::string, std::unordered_map<std::string, double>> tfidf_index;
+
     /* holds the path to the index on the filesystem */
     std::string index_path;
+
+    /* stopwords which are read from a txt file */
+    std::vector<std::string> stopwords;
 
     int thread_num;
     std::mutex mtx;
@@ -51,9 +55,11 @@ class Index {
     void build_document_index(std::string directory);
     void build_tfidf_index();
     void rebuild_index();
+    void read_stopwords(const std::string &filepath);
 
-    /* calculates the inverse_doc_frequency of a term on the whole corpus */
+    /* calculates the inverse_doc_frequency of a term over the whole corpus */
     double inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus);
+
     void calculate_tfidf_index(int start_index, int end_index);
     void save_index_to_filesystem();
     void retrieve_index_from_filesystem();

@@ -20,8 +20,6 @@ class Server {
 
         boost::asio::ip::tcp::endpoint endpoint;
         boost::asio::ip::tcp::acceptor acceptor;
-        boost::asio::io_context &context;
-
         Index &idx;
 };
 

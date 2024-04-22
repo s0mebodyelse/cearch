@@ -21,7 +21,7 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 
 class Session: public std::enable_shared_from_this<Session> {
     public:
-        Session(boost::asio::ip::tcp::socket socket, boost::asio::io_context &io_context, Index &idx);
+        Session(boost::asio::ip::tcp::socket socket, Index &idx);
         ~Session();
         void start();
 
@@ -30,7 +30,6 @@ class Session: public std::enable_shared_from_this<Session> {
         std::string read_html_file(const std::string& file_path);
 
         boost::asio::ip::tcp::socket socket;
-        boost::asio::io_context &context;
         Index &idx; 
 
         /* http request buffers */
