@@ -7,5 +7,8 @@ LIBS = -lpugixml -lm
 build:
 	clang++ $(LIBS) $(INCLUDE) $(INPUT) -o $(OUTPUT) $(FLAGS)
 
+build_san:
+	clang++ $(LIBS) $(INCLUDE) $(INPUT) -o $(OUTPUT)_san $(FLAGS) -fsanitize=address
+
 run: build
 	./cearch ./docs.gl
