@@ -21,14 +21,11 @@ Document::Document(
   indexed_at(indexed_at), concordance(std::move(concordance)),
   tfidf_scores(std::move(tfidf_scores)) 
 {
-
+  
 }
 
 Document::~Document() {}
 
-/*
-*	returns the raw content of a Document as a String
-*/
 std::string Document::read_content() {
   std::ifstream file(filepath);
   if (!file.is_open()) {
@@ -91,7 +88,7 @@ bool Document::contains_term(const std::string &term) {
 
 void Document::index_document() {
   std::string word;
-  std::istringstream iss(get_file_content_as_string());
+  std::istringstream iss(this->read_content());
   
   std::cout << "Indexing doc : " << this->get_filepath() << std::endl;
 
@@ -178,13 +175,15 @@ Document Document::from_json(const json &j) {
 
 /* Document Factory implementation */
 std::unique_ptr<Document> Document_factory::create_document(const std::string &filepath, const std::string &extension) {
+  /* simple factory implementation */
   if (extension == ".xml" || extension == ".xhtml") {
     return std::make_unique<XML_Document>(filepath);
+    std::cout << "xml doc created" << std::endl;
   }
 
   if (extension == ".txt") {
     return std::make_unique<Text_Document>(filepath);
-    std::cout << "txt doc" << std::endl;
+    std::cout << "txt doc created" << std::endl;
   }
   
   throw std::runtime_error(std::string("Document with extension ") + extension + " not supported");
@@ -238,4 +237,48 @@ Text_Document::Text_Document(const std::string &filepath):
 
 Text_Document::~Text_Document() {
 
+}
+
+std::string Text_Document::read_content() {
+  std::ifstream file(filepath);
+  if (!file.is_open()) {
+      throw std::runtime_error("Failed to open file: " + filepath);
+  }
+
+  std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+  return content;
+}
+
+
+/* PDF Document Stuff */
+PDF_Document::PDF_Document(const std::string &filepath):
+  Document(filepath, "pdf") 
+{
+  ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
+  if (!ctx) {
+    throw std::runtime_error("Could not create MuPDF context");
+  }
+
+  /* open Document */
+  doc = fz_open_document(ctx, filepath.c_str());
+  if (!doc) {
+    fz_drop_context(ctx);
+    throw std::runtime_error("Could not open PDF Document");
+  }
+}
+
+PDF_Document::~PDF_Document() {
+  if (doc) {
+    fz_drop_document(ctx, doc);
+  }
+
+  if (ctx) {
+    fz_drop_context(ctx);
+  }
+}
+
+std::string PDF_Document::read_content() {
+  std::string content;
+
+  return content;
 }
