@@ -35,6 +35,8 @@ class Index {
     /* helper functions */
     int get_document_counter();
 
+    void run_reindexing();
+
   private:
     /* vector of all Documents in the index */
     std::vector<std::unique_ptr<Document>> documents;

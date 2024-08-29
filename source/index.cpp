@@ -86,6 +86,7 @@ void Index::build_document_index(std::string directory) {
         /* on creation the document get indexed (clean words in the doc and there occurance counter) */
         try {
           std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
+          new_doc->index_document();
           documents.push_back(std::move(new_doc));
         } catch(std::exception &e) {
           std::cerr << "Exception caught reading file: " << e.what() << std::endl;
@@ -114,7 +115,7 @@ void Index::build_tfidf_index() {
     std::cout << "Start index: " << start_index << " End index: " << end_index << std::endl;
     threads.emplace_back([this, start_index, end_index](){ this->calculate_tfidf_index(start_index, end_index); });
   }
-
+  std::cout << "Done, joining threads" << std::endl;
   for(std::thread &thread: threads) {
     thread.join();
   }
@@ -176,16 +177,24 @@ void Index::rebuild_index() {
   bool reindex_tfidf = false;
   for (auto &document: documents) {
     if (document->needs_reindexing()) {
+      std::cout << "Document " << document->get_filepath() << " will be reindexed" << std::endl;
       document->index_document();
       reindex_tfidf = true;
     }
   }
-  
+  /* 
+  * if one document is changed the tfidf index needs to be rebuild 
+  * and stored on the filesystem again
+  */ 
   if (reindex_tfidf) {
     build_tfidf_index(); 
+    save_index_to_filesystem();
   }
+}
 
-  save_index_to_filesystem();
+void Index::run_reindexing() {
+  std::cout << "Start reindexing" << std::endl;
+  rebuild_index();
 }
 
 /* 
@@ -193,7 +202,7 @@ void Index::rebuild_index() {
 */
 void Index::read_stopwords(const std::string &filepath) {
   try {
-    Document stop_words{filepath, ""};
+    Text_Document stop_words{filepath};
     std::stringstream iss(stop_words.get_file_content_as_string());
     std::string word;
     while (iss >> word) {
@@ -239,7 +248,8 @@ void Index::retrieve_index_from_filesystem() {
   try {
     input >> load;
     for (const auto &doc_json: load) {
-      documents.push_back(std::make_unique<Document>(Document::from_json(doc_json)));
+      std::cout << "TODO" << std::endl;
+      //documents.push_back(std::make_unique<Document>(Document::from_json(doc_json)));
     }
   } catch(std::exception &e) {
     std::cout << "Exception caught: " << e.what() << std::endl;

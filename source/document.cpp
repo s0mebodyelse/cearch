@@ -5,11 +5,9 @@ Document::Document(
   std::string filepath, std::string file_extension):
   filepath(filepath), file_extension(file_extension)
 {
-  	index_document();
-  	indexed_at = std::chrono::system_clock::now();
 }
 
-/* constructor the be used for reading from json file */
+/* constructor the be used for reading from json file 
 Document::Document(
   std::string filepath, 
   std::string file_extension, 
@@ -22,19 +20,9 @@ Document::Document(
   tfidf_scores(std::move(tfidf_scores)) 
 {
   
-}
+}*/
 
 Document::~Document() {}
-
-std::string Document::read_content() {
-  std::ifstream file(filepath);
-  if (!file.is_open()) {
-      throw std::runtime_error("Failed to open file: " + filepath);
-  }
-
-  std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-  return content;
-}
 
 std::unordered_map<std::string, int> Document::get_concordance() {
   return concordance;
@@ -105,6 +93,8 @@ void Document::index_document() {
       }
     }
   }
+
+  indexed_at = std::chrono::system_clock::now();
 }
 
 std::vector<std::string> Document::clean_word(std::string &word) {
@@ -162,7 +152,7 @@ const json Document::serialize_to_json() {
     {"tfidf_scores", tfidf_scores}
   };
 }
-
+/*
 Document Document::from_json(const json &j) {
   return Document(
     j.at("filepath").get<std::string>(),
@@ -172,27 +162,35 @@ Document Document::from_json(const json &j) {
     j.at("tfidf_scores").get<std::unordered_map<std::string, double>>()
   );
 }
+*/
 
 /* Document Factory implementation */
 std::unique_ptr<Document> Document_factory::create_document(const std::string &filepath, const std::string &extension) {
   /* simple factory implementation */
   if (extension == ".xml" || extension == ".xhtml") {
     return std::make_unique<XML_Document>(filepath);
-    std::cout << "xml doc created" << std::endl;
   }
 
   if (extension == ".txt") {
     return std::make_unique<Text_Document>(filepath);
-    std::cout << "txt doc created" << std::endl;
+  }
+
+  if (extension == ".pdf") {
+    try {
+	  return std::make_unique<PDF_Document>(filepath);
+    } catch (const std::exception &e) {
+      throw std::runtime_error(e.what());
+    }
   }
   
-  throw std::runtime_error(std::string("Document with extension ") + extension + " not supported");
+  throw std::runtime_error(std::string("Document " + filepath + " " + extension + " not supported"));
 };
 
 /* XML Specific Documents */
 XML_Document::XML_Document(const std::string &filepath):
   Document(filepath, "xml") 
 {
+	std::cout << "XML Document created" << std::endl;
 }
 
 XML_Document::~XML_Document() {
@@ -233,6 +231,7 @@ void XML_Document::traverse_nodes(const pugi::xml_node& root_node, std::string &
 Text_Document::Text_Document(const std::string &filepath):
 	Document(filepath, "txt")
 {
+	std::cout << "Text Document created" << std::endl;
 }
 
 Text_Document::~Text_Document() {
@@ -242,7 +241,7 @@ Text_Document::~Text_Document() {
 std::string Text_Document::read_content() {
   std::ifstream file(filepath);
   if (!file.is_open()) {
-      throw std::runtime_error("Failed to open file: " + filepath);
+    	throw std::runtime_error("Failed to open file: " + filepath);
   }
 
   std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -254,31 +253,52 @@ std::string Text_Document::read_content() {
 PDF_Document::PDF_Document(const std::string &filepath):
   Document(filepath, "pdf") 
 {
-  ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
-  if (!ctx) {
-    throw std::runtime_error("Could not create MuPDF context");
-  }
+	ctx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED);
+	if (!ctx) {
+		throw std::runtime_error("Could not create MuPDF context");
+	}
 
-  /* open Document */
-  doc = fz_open_document(ctx, filepath.c_str());
-  if (!doc) {
-    fz_drop_context(ctx);
-    throw std::runtime_error("Could not open PDF Document");
-  }
+	fz_try(ctx) {
+		fz_register_document_handlers(ctx);
+	} fz_catch(ctx) {
+		throw std::runtime_error("Failed registering mupdf document handlers");
+	}
+
+	/* open Document */
+	fz_try(ctx)
+		doc = fz_open_document(ctx, filepath.c_str());
+	fz_catch(ctx)
+	{
+		throw std::runtime_error("Could not open PDF Document");
+	}
+
+  std::cout << "PDF Opened and Document created" << std::endl;
 }
 
 PDF_Document::~PDF_Document() {
-  if (doc) {
-    fz_drop_document(ctx, doc);
-  }
+	if (doc) {
+		fz_drop_document(ctx, doc);
+	}
 
-  if (ctx) {
-    fz_drop_context(ctx);
-  }
+	if (ctx) {
+		fz_drop_context(ctx);
+	}
+
+  std::cout << "PDF Document destroyed" << std::endl;
 }
 
 std::string PDF_Document::read_content() {
-  std::string content;
+	std::string content = "Test123";
 
-  return content;
+	int page_count;
+	fz_try(ctx) {
+		page_count = fz_count_pages(ctx, doc);
+	} fz_catch(ctx) {
+		std::cout << "Error: cannot count page numbers" << std::endl;
+		return content;
+	}
+
+	std::cout << "Pages of PDF: " << page_count << std::endl;
+
+	return content;
 }

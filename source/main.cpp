@@ -12,9 +12,10 @@
 
 class Timer {
 	public:
-		Timer(int tick, boost::asio::io_context &io_context) : 
+		Timer(int tick, boost::asio::io_context &io_context, Index &idx) : 
 			m_interval(std::chrono::seconds(tick)),
-			m_timer(io_context, m_interval) 
+			m_timer(io_context, m_interval),
+			m_idx(idx)
 			{
 				start_timer();
 			};
@@ -22,6 +23,7 @@ class Timer {
 	private:
 		std::chrono::seconds m_interval;
 		boost::asio::steady_timer m_timer;
+		Index &m_idx;
 
 		void start_timer() {
 			m_timer.expires_from_now(m_interval);
@@ -33,6 +35,7 @@ class Timer {
 		void async_handler(const boost::system::error_code &error) {
 			if (!error) {
 				std::cout << "Timer expired!" << std::endl;
+				m_idx.run_reindexing();
 				/* reschedule the timer */
 				start_timer();
 			} else {
@@ -57,16 +60,15 @@ int main(int argc, const char *argv[]) {
 		/* create io context */
 		boost::asio::io_context io_context;
 
-		Timer timer(5, io_context);
-
 		/* init the index */
 		Index idx(directory, index_path, threads);
+		Timer timer(20, io_context, idx);
 
 		std::cout << "Starting cearch server on port: " << port << std::endl;
 		Server server(io_context, port, idx);
 		io_context.run();
 	} catch (const std::exception &e) {
-		std::cerr << "Error: " << e.what() << std::endl;
+		std::cerr << "Error in main: " << e.what() << std::endl;
 		return 1;
 	}
 

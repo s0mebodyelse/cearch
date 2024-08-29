@@ -27,18 +27,9 @@ class Document {
     /* standard constructor */
     Document(std::string filepath, std::string file_extension);
 
-    /* constructor the be used for reading from json file */
-    Document(
-      std::string filepath, 
-      std::string file_extension,
-      std::chrono::system_clock::time_point indexed_at,
-      std::unordered_map<std::string, int> concordance,
-      std::unordered_map<std::string, double> tfidf_scores
-    );
-
     /* needs to be virtual, so it can be implemented in the derived classes */
     virtual ~Document();
-    virtual std::string read_content();
+    virtual std::string read_content() = 0;
 
     std::unordered_map<std::string, int> get_concordance();
 
@@ -58,7 +49,6 @@ class Document {
 
     /* json stuff */
     const json serialize_to_json();
-    static Document from_json(const json &j);
 
   protected:
     std::string filepath; 
