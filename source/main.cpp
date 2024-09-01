@@ -46,7 +46,7 @@ class Timer {
 
 int main(int argc, const char *argv[]) {
 	/* read configuration from command line */
-	if (argc != 5) {
+	if (argc != 6) {
 		std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory to save index in> <number of threads to use>";
 		return 1;
 	}
@@ -55,6 +55,7 @@ int main(int argc, const char *argv[]) {
 	std::string directory = argv[2];
 	std::string index_path = argv[3];
 	int threads = atoi(argv[4]);
+	int tick = atoi(argv[5]);
 
 	try {
 		/* create io context */
@@ -62,7 +63,7 @@ int main(int argc, const char *argv[]) {
 
 		/* init the index */
 		Index idx(directory, index_path, threads);
-		Timer timer(20, io_context, idx);
+		Timer timer(tick, io_context, idx);
 
 		std::cout << "Starting cearch server on port: " << port << std::endl;
 		Server server(io_context, port, idx);

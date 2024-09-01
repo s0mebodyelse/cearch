@@ -7,6 +7,8 @@ Document::Document(
 {
 }
 
+Document::~Document() {}
+
 /* constructor the be used for reading from json file 
 Document::Document(
   std::string filepath, 
@@ -21,8 +23,6 @@ Document::Document(
 {
   
 }*/
-
-Document::~Document() {}
 
 std::unordered_map<std::string, int> Document::get_concordance() {
   return concordance;
@@ -77,7 +77,7 @@ bool Document::contains_term(const std::string &term) {
 void Document::index_document() {
   std::string word;
   std::istringstream iss(this->read_content());
-  
+
   std::cout << "Indexing doc : " << this->get_filepath() << std::endl;
 
   while (iss >> word) {
@@ -190,11 +190,6 @@ std::unique_ptr<Document> Document_factory::create_document(const std::string &f
 XML_Document::XML_Document(const std::string &filepath):
   Document(filepath, "xml") 
 {
-	std::cout << "XML Document created" << std::endl;
-}
-
-XML_Document::~XML_Document() {
-
 }
 
 std::string XML_Document::read_content() {
@@ -222,7 +217,7 @@ void XML_Document::traverse_nodes(const pugi::xml_node& root_node, std::string &
     content.append(" ");
     
     for (pugi::xml_node child_node = current_node.first_child(); child_node; child_node = child_node.next_sibling()) {
-        node_queue.push(child_node);
+      node_queue.push(child_node);
     }
   }
 }
@@ -231,11 +226,6 @@ void XML_Document::traverse_nodes(const pugi::xml_node& root_node, std::string &
 Text_Document::Text_Document(const std::string &filepath):
 	Document(filepath, "txt")
 {
-	std::cout << "Text Document created" << std::endl;
-}
-
-Text_Document::~Text_Document() {
-
 }
 
 std::string Text_Document::read_content() {
@@ -271,8 +261,6 @@ PDF_Document::PDF_Document(const std::string &filepath):
 	{
 		throw std::runtime_error("Could not open PDF Document");
 	}
-
-  std::cout << "PDF Opened and Document created" << std::endl;
 }
 
 PDF_Document::~PDF_Document() {
@@ -283,22 +271,119 @@ PDF_Document::~PDF_Document() {
 	if (ctx) {
 		fz_drop_context(ctx);
 	}
+}
 
-  std::cout << "PDF Document destroyed" << std::endl;
+PDF_Document::PDF_Document(const PDF_Document &other):
+  Document(other.filepath, other.file_extension)
+{
+  ctx = fz_clone_context(other.ctx);
+
+	fz_try(ctx) {
+		fz_register_document_handlers(ctx);
+	} fz_catch(ctx) {
+		throw std::runtime_error("Failed registering mupdf document handlers");
+	}
+
+	/* open Document again */
+	fz_try(ctx)
+		doc = fz_open_document(ctx, other.filepath.c_str());
+	fz_catch(ctx)
+	{
+		throw std::runtime_error("Could not open PDF Document");
+	}
+}
+
+PDF_Document& PDF_Document::operator=(const PDF_Document &other) {
+  if (this == &other) {
+    return *this;
+  } 
+
+  /* cleanup existing ressources */ 
+	if (doc) {
+		fz_drop_document(ctx, doc);
+	}
+
+	if (ctx) {
+		fz_drop_context(ctx);
+	}
+
+  /* clone ressources */
+  ctx = fz_clone_context(other.ctx);
+
+	/* open Document again */
+	fz_try(ctx)
+		doc = fz_open_document(ctx, other.filepath.c_str());
+	fz_catch(ctx)
+	{
+		throw std::runtime_error("Could not open PDF Document");
+	}
+
+  return *this; 
+}
+
+PDF_Document::PDF_Document(PDF_Document &&other):
+  Document(other.filepath, other.file_extension)
+{
+  ctx = other.ctx;
+  doc = other.doc;
+  other.ctx = nullptr;
+  other.doc = nullptr; 
+}
+
+PDF_Document& PDF_Document::operator=(PDF_Document &&other) {
+  if (this == &other) return *this;
+
+  /* cleanup */
+  if (doc) fz_drop_document(ctx, doc);
+  if (ctx) fz_drop_context(ctx);
+
+  /* steal ressources */
+  ctx = other.ctx;
+  doc = other.doc;
+  other.ctx = nullptr;
+  other.doc = nullptr;
+
+  return *this;
 }
 
 std::string PDF_Document::read_content() {
-	std::string content = "Test123";
-
+	std::string content = "";
 	int page_count;
+  int page_number;
+
+  fz_page* page = nullptr;
+  fz_stext_page* stext_page = nullptr;
+  fz_device* dev = nullptr;
+  fz_matrix ctm;
+
 	fz_try(ctx) {
 		page_count = fz_count_pages(ctx, doc);
 	} fz_catch(ctx) {
 		std::cout << "Error: cannot count page numbers" << std::endl;
-		return content;
+    return content;
 	}
 
 	std::cout << "Pages of PDF: " << page_count << std::endl;
+
+  for (page_number = 0; page_number < page_count; page_number++) {
+    page = fz_load_page(ctx, doc, page_number);
+    fz_rect box = fz_bound_page(ctx, page);
+    stext_page = fz_new_stext_page(ctx, box);
+    dev = fz_new_stext_device(ctx, stext_page, NULL);
+
+    fz_run_page(ctx, page, dev, ctm, NULL);
+
+    /* Process Text Page */
+    for (fz_stext_block *block = stext_page->first_block; block; block = block->next) {
+      if (block->type == FZ_STEXT_BLOCK_TEXT) {
+        for (fz_stext_line *line = block->u.t.first_line; line; line = line->next) {
+          for (fz_stext_char *ch = line->first_char; ch; ch = ch->next) {
+            content += ch->c;
+          }
+        }
+      }
+    }
+  }
 
 	return content;
 }

@@ -70,7 +70,6 @@ public:
 class XML_Document: public Document {
   public:
     XML_Document(const std::string &filepath);
-    ~XML_Document();
     std::string read_content() override;
 
   private:
@@ -81,7 +80,6 @@ class XML_Document: public Document {
 class Text_Document: public Document {
   public:
     Text_Document(const std::string &filepath);
-    ~Text_Document();
     std::string read_content() override;
 
   private:
@@ -91,6 +89,19 @@ class PDF_Document: public Document {
   public:
     PDF_Document(const std::string &filepath);
     ~PDF_Document();
+
+    /* 
+    * Rule of five, because of user defined destructor
+    * Copy Constructor
+    * Copy Assignment Operator
+    * Move Constructor
+    * Move Assigment Operator
+    */
+    PDF_Document(const PDF_Document &other);
+    PDF_Document& operator=(const PDF_Document &other);
+    PDF_Document(PDF_Document &&other);
+    PDF_Document& operator=(PDF_Document &&other);
+
     std::string read_content() override;
 
   private:
