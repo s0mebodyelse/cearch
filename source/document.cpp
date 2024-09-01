@@ -334,8 +334,13 @@ PDF_Document& PDF_Document::operator=(PDF_Document &&other) {
   if (this == &other) return *this;
 
   /* cleanup */
-  if (doc) fz_drop_document(ctx, doc);
-  if (ctx) fz_drop_context(ctx);
+  if(doc) {
+    fz_drop_document(ctx, doc);
+  }
+
+  if(ctx) {
+    fz_drop_context(ctx);
+  }
 
   /* steal ressources */
   ctx = other.ctx;
@@ -365,7 +370,7 @@ std::string PDF_Document::read_content() {
 
 	std::cout << "Pages of PDF: " << page_count << std::endl;
 
-  for (page_number = 0; page_number < page_count; page_number++) {
+  for(page_number = 0; page_number < page_count; page_number++) {
     page = fz_load_page(ctx, doc, page_number);
     fz_rect box = fz_bound_page(ctx, page);
     stext_page = fz_new_stext_page(ctx, box);
@@ -374,11 +379,11 @@ std::string PDF_Document::read_content() {
     fz_run_page(ctx, page, dev, ctm, NULL);
 
     /* Process Text Page */
-    for (fz_stext_block *block = stext_page->first_block; block; block = block->next) {
-      if (block->type == FZ_STEXT_BLOCK_TEXT) {
-        for (fz_stext_line *line = block->u.t.first_line; line; line = line->next) {
-          for (fz_stext_char *ch = line->first_char; ch; ch = ch->next) {
-            content += ch->c;
+    for(fz_stext_block *block = stext_page->first_block; block; block = block->next) {
+      if(block->type == FZ_STEXT_BLOCK_TEXT) {
+        for(fz_stext_line *line = block->u.t.first_line; line; line = line->next) {
+          for(fz_stext_char *ch = line->first_char; ch; ch = ch->next) {
+            content.append(1, ch->c);
           }
         }
       }
