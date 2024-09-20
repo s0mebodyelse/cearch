@@ -22,7 +22,7 @@ Index::~Index() {}
  *   queries the index and returns the result ordered by tfidf ranking
  *   returns a sorted vector of pairs <filepath, rank>
  */
-std::vector<std::pair<std::string, double>> Index::retrieve_result(
+std::vector<std::pair<std::string, double>> Index::query_index(
     const std::vector<std::string> &input_values) {
     std::vector<std::pair<std::string, double>> result;
     /* loop over every document in the index */
@@ -47,7 +47,7 @@ std::vector<std::pair<std::string, double>> Index::retrieve_result(
 
     /* Sort the result ascending by rank */
     std::sort(result.begin(), result.end(),
-              [](const auto &a, const auto &b) { return a.second > b.second; });
+        [](const auto &a, const auto &b) { return a.second > b.second; });
 
     return result;
 }
