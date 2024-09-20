@@ -1,5 +1,5 @@
-#ifndef PDF_H
-#define PDF_H
+#ifndef _PDF_H
+#define _PDF_H
 
 #include <poppler/cpp/poppler-document.h>
 

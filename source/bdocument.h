@@ -15,13 +15,9 @@
 #include <unordered_map>
 #include <utility>
 
-/* XML Parsing */
-#include <pugixml.hpp>
-
 /* Base Document Class */
 class BDocument {
    public:
-    /* standard constructor */
     BDocument(std::string filepath, std::string file_extension);
 
     /* needs to be virtual, so it can be implemented in the derived classes */
@@ -56,30 +52,11 @@ class BDocument {
     std::unordered_map<std::string, double> tfidf_scores;
 };
 
-/* a Factory which returns Document objects depending on their file extensions
- */
+/* a Factory which returns Document objects depending on their file extensions */
 class BDocument_factory {
    public:
     static std::unique_ptr<BDocument> create_document(
         const std::string &filepath, const std::string &extension);
-};
-
-class XML_Document : public BDocument {
-   public:
-    XML_Document(const std::string &filepath);
-    std::string read_content() override;
-
-   private:
-    /* helper function to traverse every node in a xml file */
-    void traverse_nodes(const pugi::xml_node &root_node, std::string &content);
-};
-
-class Text_Document : public BDocument {
-   public:
-    Text_Document(const std::string &filepath);
-    std::string read_content() override;
-
-   private:
 };
 
 #endif

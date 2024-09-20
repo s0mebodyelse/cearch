@@ -1,6 +1,8 @@
 #include "bdocument.h"
 
 #include "pdf_document.h"
+#include "xml_document.h"
+#include "text_document.h"
 
 /* Base Document Class */
 BDocument::BDocument(std::string filepath, std::string file_extension)
@@ -144,52 +146,3 @@ std::unique_ptr<BDocument> BDocument_factory::create_document(
 
     throw std::runtime_error(std::string("Document " + filepath + " " + extension + " not supported"));
 };
-
-/* XML Specific Documents */
-XML_Document::XML_Document(const std::string &filepath)
-    : BDocument(filepath, "xml") {}
-
-std::string XML_Document::read_content() {
-    pugi::xml_document doc;
-    std::string file_content;
-
-    if (!doc.load_file(filepath.c_str())) {
-        std::cerr << "failed to load xml file" << std::endl;
-    }
-
-    traverse_nodes(doc.document_element(), file_content);
-    return file_content;
-}
-
-void XML_Document::traverse_nodes(const pugi::xml_node &root_node, std::string &content) {
-    std::queue<pugi::xml_node> node_queue;
-    node_queue.push(root_node);
-
-    while (!node_queue.empty()) {
-        pugi::xml_node current_node = node_queue.front();
-        node_queue.pop();
-
-        /* process the current node */
-        content.append(current_node.value());
-        content.append(" ");
-
-        for (pugi::xml_node child_node = current_node.first_child(); child_node;
-             child_node = child_node.next_sibling()) {
-            node_queue.push(child_node);
-        }
-    }
-}
-
-/* Text Document stuff */
-Text_Document::Text_Document(const std::string &filepath)
-    : BDocument(filepath, "txt") {}
-
-std::string Text_Document::read_content() {
-    std::ifstream file(filepath);
-    if (!file.is_open()) {
-        throw std::runtime_error("Failed to open file: " + filepath);
-    }
-
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    return content;
-}

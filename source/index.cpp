@@ -1,4 +1,5 @@
 #include "index.h"
+#include "text_document.h"
 
 /*
  *   The directory is the directory which is read and indexed, the index_path is
