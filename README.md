@@ -6,7 +6,7 @@ Local Search engine with Web Interface
 ## Dependencies
 - Pugixml (libpugixml-dev)
 - Boost Asio (libboost-all-dev)
-- nlohmann json (nlohmann-json3-dev)
+- poppler (lib-poppler)
 
 ## Build the project
 make 
