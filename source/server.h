@@ -7,7 +7,7 @@
 #include <boost/asio.hpp>
 
 #include "session.h"
-#include "document.h"
+#include "bdocument.h"
 #include "index.h"
 
 class Server {

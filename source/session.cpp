@@ -44,7 +44,7 @@ void Session::write_response() {
         }
 
         /* extract every single word from input value */
-        input_values = Document::clean_word(input_value);
+        input_values = BDocument::clean_word(input_value);
         
         /* retrieve the result from the index */
         std::vector<std::pair<std::string, double>> result;

@@ -7,22 +7,11 @@ Index::Index(std::string directory, std::string index_path, int threads_used):
   index_path(index_path),
   thread_num(threads_used) 
 {
-  if (index_exists_on_filesystem()) {
-    std::cout << "Existing index found in " << index_path << ", retrieving index." << std::endl;
-    try {
-      retrieve_index_from_filesystem();
-      return;
-    } catch (std::exception &e) {
-      std::cerr << "Exception caught, retrieving index: " << e.what() << std::endl;
-    }
-  }
-
-  /* start building the index, is run if retrieving the index fails */
+  /* start building the index */
   try {
     read_stopwords("stopwords.txt");
     build_document_index(directory);
     build_tfidf_index();
-    save_index_to_filesystem();
   } catch (std::exception &e) {
     std::cerr << "Caught Exception building index: " << e.what() << std::endl;
   }
@@ -72,7 +61,7 @@ int Index::get_document_counter() {
 
 /* 
 *   Moves trough a directy and try's to read every supported file in it
-*   For every supported file in the dir, a Document is created and read 
+*   For every supported file in the dir, a Document is created
 */
 void Index::build_document_index(std::string directory) {
   /* if the param is a directory */ 
@@ -85,7 +74,7 @@ void Index::build_document_index(std::string directory) {
         std::string file_extension = std::filesystem::path(entry.path()).extension();
         /* on creation the document get indexed (clean words in the doc and there occurance counter) */
         try {
-          std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
+          std::unique_ptr<BDocument> new_doc = BDocument_factory::create_document(filepath, file_extension);
           new_doc->index_document();
           documents.push_back(std::move(new_doc));
         } catch(std::exception &e) {
@@ -107,7 +96,6 @@ void Index::build_tfidf_index() {
   std::cout << "Running build tfidf index" << std::endl;
   const auto start{std::chrono::steady_clock::now()};
 
-  // Doenst work on low Document count? Or if Threads > Document count
   int files_per_thread = get_document_counter() / thread_num;
   for (int i = 0; i < thread_num; ++i) {
     int start_index = i * files_per_thread;
@@ -151,7 +139,7 @@ void Index::calculate_tfidf_index(int start_index, int end_index){
 /*
  * Calculates the idf for a certain term over the whole index 
  */
-double Index::inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus) {
+double Index::inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<BDocument>> &corpus) {
   int term_count = 0;
   int n = corpus.size();
   
@@ -188,7 +176,6 @@ void Index::rebuild_index() {
   */ 
   if (reindex_tfidf) {
     build_tfidf_index(); 
-    save_index_to_filesystem();
   }
 }
 
@@ -213,55 +200,4 @@ void Index::read_stopwords(const std::string &filepath) {
     stopwords.clear();
     return;
   }
-}
-
-/* 
- * saves the index as json to index_path
- * the tfidf index is saved as index_tfidf.json
- * the docs index is saved a index_docs.json
- */
-void Index::save_index_to_filesystem() {
-  std::cout << "Index is saved in " << index_path << std::endl;
-  json j_documents;
-
-  for (auto &doc: documents) {
-    json json_object = doc->serialize_to_json();
-    j_documents.push_back(json_object);
-  }
-
-  std::ofstream doc_file(index_path + "/index_docs.json");
-
-  try {
-    doc_file << j_documents.dump();
-  } catch(std::exception &e) {
-    std::cout << "Exception caught: " << e.what() << std::endl;
-  }
-}
-
-/* 
-*   retrieves the index back from the filesystem, throws an exception on failure
-*/
-void Index::retrieve_index_from_filesystem() {
-  std::ifstream input(index_path + "/index_docs.json");
-  json load;
-
-  try {
-    input >> load;
-    for (const auto &doc_json: load) {
-      std::cout << "TODO" << std::endl;
-      //documents.push_back(std::make_unique<Document>(Document::from_json(doc_json)));
-    }
-  } catch(std::exception &e) {
-    std::cout << "Exception caught: " << e.what() << std::endl;
-    throw std::runtime_error(e.what());
-  }
-}
-
-/* 
-*  check wether the index exists in the filesystem
-*/
-bool Index::index_exists_on_filesystem() {
-  const std::string file_path_docs = index_path + "/index_docs.json";
-
-  return std::filesystem::exists(file_path_docs) && std::filesystem::is_regular_file(file_path_docs);
 }

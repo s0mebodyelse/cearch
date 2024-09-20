@@ -17,13 +17,9 @@
 #include <thread>
 #include <chrono>
 #include <stdexcept>
-
 #include <boost/asio.hpp>
-#include <nlohmann/json.hpp>
 
-#include "document.h"
-
-using json = nlohmann::json;
+#include "bdocument.h"
 
 class Index {
   public:
@@ -39,7 +35,7 @@ class Index {
 
   private:
     /* vector of all Documents in the index */
-    std::vector<std::unique_ptr<Document>> documents;
+    std::vector<std::unique_ptr<BDocument>> documents;
 
     /* Holds the path to a document and its tfidf score per term */
     std::unordered_map<std::string, std::unordered_map<std::string, double>> tfidf_index;
@@ -60,12 +56,9 @@ class Index {
     void read_stopwords(const std::string &filepath);
 
     /* calculates the inverse_doc_frequency of a term over the whole corpus */
-    double inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus);
+    double inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<BDocument>> &corpus);
 
     void calculate_tfidf_index(int start_index, int end_index);
-    void save_index_to_filesystem();
-    void retrieve_index_from_filesystem();
-    bool index_exists_on_filesystem();
 };
 
 #endif

@@ -7,7 +7,7 @@
 
 /* cearch headers */
 #include "index.h"
-#include "document.h"
+#include "bdocument.h"
 #include "server.h"
 
 class Timer {
