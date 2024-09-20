@@ -23,23 +23,20 @@ class Index {
    public:
     Index(std::string directory, std::string index_path, int thread_num);
     ~Index();
-    /* calculates a ranking from tfidf index and returns the documents with the
-     * highest rank, based on the input */
-    std::vector<std::pair<std::string, double>> retrieve_result(
-        const std::vector<std::string> &input_values);
 
-    /* helper functions */
+    /* 
+    *   calculates a ranking from tfidf index and returns the documents with the
+    *   highest rank, based on the input 
+    */
+    std::vector<std::pair<std::string, double>> retrieve_result(const std::vector<std::string> &input_values);
+
     int get_document_counter();
-
     void run_reindexing();
+    void print_tfidf_index();
 
    private:
     /* vector of all Documents in the index */
     std::vector<std::unique_ptr<BDocument>> documents;
-
-    /* Holds the path to a document and its tfidf score per term */
-    std::unordered_map<std::string, std::unordered_map<std::string, double>>
-        tfidf_index;
 
     /* holds the path to the index on the filesystem */
     std::string index_path;
@@ -47,6 +44,7 @@ class Index {
     /* stopwords which are read from a txt file */
     std::vector<std::string> stopwords;
 
+    /* threading */
     int thread_num;
     std::mutex mtx;
     std::vector<std::thread> threads;
@@ -59,7 +57,8 @@ class Index {
     /* calculates the inverse_doc_frequency of a term over the whole corpus */
     double inverse_doc_frequency(
         std::string term,
-        const std::vector<std::unique_ptr<BDocument>> &corpus);
+        const std::vector<std::unique_ptr<BDocument>> &corpus
+    );
 
     void calculate_tfidf_index(int start_index, int end_index);
 };

@@ -205,3 +205,10 @@ void Index::read_stopwords(const std::string &filepath) {
         return;
     }
 }
+
+void Index::print_tfidf_index() {
+    std::cout << "Printing tfidf_index" << std::endl;
+    for (const auto &document: documents) {
+        document->print_tfidf_scores();
+    }
+}

@@ -29,6 +29,7 @@ class BDocument {
     virtual std::string read_content() = 0;
 
     std::unordered_map<std::string, int> get_concordance();
+    void print_tfidf_scores();
 
     void insert_tfidf_score(std::pair<std::string, double> tfidf_score);
     void index_document();

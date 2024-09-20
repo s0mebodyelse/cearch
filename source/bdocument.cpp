@@ -12,6 +12,13 @@ std::unordered_map<std::string, int> BDocument::get_concordance() {
     return concordance;
 }
 
+void BDocument::print_tfidf_scores() {
+    std::cout << "Doc: " << filepath << std::endl;
+    for (const auto &entry: tfidf_scores) {
+        std::cout << entry.first << " Score: " << entry.second << std::endl;
+    }    
+}
+
 void BDocument::insert_tfidf_score(std::pair<std::string, double> tfidf_score) {
     tfidf_scores.insert(tfidf_score);
 }

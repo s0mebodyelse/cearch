@@ -6,7 +6,6 @@
 #include <boost/asio.hpp>
 
 /* cearch headers */
-#include "bdocument.h"
 #include "index.h"
 #include "server.h"
 
@@ -46,8 +45,9 @@ class Timer {
 int main(int argc, const char *argv[]) {
     /* read configuration from command line */
     if (argc != 6) {
-        std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory "
-                     "to save index in> <number of threads to use>";
+        std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory ";
+        std::cerr << "to save index in> <number of threads to use>";
+        std::cerr << std::endl;
         return 1;
     }
 
@@ -70,7 +70,7 @@ int main(int argc, const char *argv[]) {
         io_context.run();
     } catch (const std::exception &e) {
         std::cerr << "Error in main: " << e.what() << std::endl;
-        return 1;
+        return 2;
     }
 
     return 0;
