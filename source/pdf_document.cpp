@@ -1,11 +1,12 @@
-#include "pdf_document.h"
-#include <poppler/cpp/poppler-page.h> 
 #include <iostream>
 
-PDF_Document::PDF_Document(const std::string& filepath):
-    BDocument(filepath, "pdf"),
-    doc(poppler::document::load_from_file(filepath))
-{
+#include "pdf_document.h"
+#include <poppler/cpp/poppler-page.h>
+
+
+PDF_Document::PDF_Document(const std::string& filepath)
+    : BDocument(filepath, "pdf"),
+      doc(poppler::document::load_from_file(filepath)) {
     if (!doc) {
         throw std::runtime_error("Error: Could not open the PDF file!");
     }
