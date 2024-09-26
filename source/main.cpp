@@ -29,7 +29,7 @@ int main(int argc, const char *argv[]) {
         /* create io context */
         boost::asio::io_context io_context;
 
-        /* init the index */
+        /* init the index and timer */
         Index idx(directory, index_path, threads);
         Timer timer(tick, io_context, idx);
 

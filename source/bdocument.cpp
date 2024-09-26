@@ -110,6 +110,7 @@ std::vector<std::string> BDocument::clean_word(std::string &word) {
  * checks indexed_at time against the last modification of the file
  * if the file was modified after it was indexed, it needs to be indexed again,
  * and the function returns true, otherwise the function returns false
+ * TODO: Move to index
  */
 bool BDocument::needs_reindexing() {
     try {

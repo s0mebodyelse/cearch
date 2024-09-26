@@ -15,7 +15,10 @@
 #include <unordered_map>
 #include <utility>
 
-/* Base Document Class */
+/* 
+*  Base Document Class 
+*  TODO: Use Strategy/Command Desing Pattern?
+*/
 class BDocument {
    public:
     BDocument(std::string filepath, std::string file_extension);
@@ -41,13 +44,15 @@ class BDocument {
     bool needs_reindexing();
     static std::vector<std::string> clean_word(std::string &word);
 
+   /* protected grants acces to these member in the derived classes */
    protected:
     std::string filepath;
     std::string file_extension;
     std::chrono::system_clock::time_point indexed_at;
 
-    /* every term in the document and counter for that term */
+    /* every term in the document and a counter for that term */
     std::unordered_map<std::string, int> concordance;
+
     /* every term in the document and its tfidf score */
     std::unordered_map<std::string, double> tfidf_scores;
 };
