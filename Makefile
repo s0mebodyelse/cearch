@@ -3,7 +3,7 @@ SOURCE = 	./source/main.cpp \
 			./source/index.cpp \
 			./source/server.cpp \
 			./source/session.cpp \
-			./source/bdocument.cpp \
+			./source/document.cpp \
 			./source/pdf_document.cpp \
 			./source/xml_document.cpp \
 			./source/text_document.cpp
