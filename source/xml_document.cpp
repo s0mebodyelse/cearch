@@ -2,7 +2,7 @@
 
 /* XML Specific Documents */
 XML_Document::XML_Document(const std::string &filepath)
-    : BDocument(filepath, "xml") {}
+    : Document(filepath, "xml") {}
 
 std::string XML_Document::read_content() {
     pugi::xml_document doc;

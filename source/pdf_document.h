@@ -7,9 +7,9 @@
 #include <stdexcept>
 #include <string>
 
-#include "bdocument.h"
+#include "document.h"
 
-class PDF_Document : public BDocument {
+class PDF_Document : public Document {
    public:
     PDF_Document(const std::string &filepath);
     std::string read_content() override;

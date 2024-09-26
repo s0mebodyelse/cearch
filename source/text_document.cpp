@@ -1,7 +1,7 @@
 #include "text_document.h"
 
 Text_Document::Text_Document(const std::string &filepath)
-    : BDocument(filepath, "txt") {}
+    : Document(filepath, "txt") {}
 
 std::string Text_Document::read_content() {
     std::ifstream file(filepath);

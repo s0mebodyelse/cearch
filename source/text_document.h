@@ -1,9 +1,9 @@
 #ifndef _TEXT_H
 #define _TEXT_H
 
-#include "bdocument.h"
+#include "document.h"
 
-class Text_Document : public BDocument {
+class Text_Document : public Document {
    public:
     Text_Document(const std::string &filepath);
     std::string read_content() override;

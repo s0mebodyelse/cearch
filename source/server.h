@@ -6,7 +6,6 @@
 #include <memory>
 #include <utility>
 
-#include "bdocument.h"
 #include "index.h"
 #include "session.h"
 

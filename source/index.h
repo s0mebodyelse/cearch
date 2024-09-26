@@ -17,7 +17,7 @@
 #include <thread>
 #include <unordered_map>
 
-#include "bdocument.h"
+#include "document.h"
 
 class Index {
    public:
@@ -38,7 +38,7 @@ class Index {
 
    private:
     /* vector of all Documents in the index */
-    std::vector<std::unique_ptr<BDocument>> documents;
+    std::vector<std::unique_ptr<Document>> documents;
 
     /* holds the path to the index on the filesystem */
     std::string index_path;
@@ -59,7 +59,7 @@ class Index {
     /* calculates the inverse_doc_frequency of a term over the whole corpus */
     double inverse_doc_frequency(
         std::string term,
-        const std::vector<std::unique_ptr<BDocument>> &corpus
+        const std::vector<std::unique_ptr<Document>> &corpus
     );
 
     void calculate_tfidf_index(int start_index, int end_index);

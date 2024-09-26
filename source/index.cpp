@@ -7,6 +7,10 @@
  */
 Index::Index(std::string directory, std::string index_path, int threads_used)
     : index_path(index_path), thread_num(threads_used) {
+
+    const auto processor_count = std::thread::hardware_concurrency();
+    std::cout << "Processor count: " << processor_count << " used threads: " << threads_used << std::endl;
+
     /* start building the index */
     try {
         read_stopwords("stopwords.txt");
@@ -15,6 +19,9 @@ Index::Index(std::string directory, std::string index_path, int threads_used)
     } catch (std::exception &e) {
         std::cerr << "Caught Exception building index: " << e.what() << std::endl;
     }
+
+    /* statistics */
+    std::cout << "Documents: " << get_document_counter() << std::endl;
 }
 
 Index::~Index() {}
@@ -72,7 +79,7 @@ void Index::build_document_index(std::string directory) {
                 std::string file_extension = std::filesystem::path(entry.path()).extension();
 
                 try {
-                    std::unique_ptr<BDocument> new_doc = BDocument_factory::create_document(filepath, file_extension);
+                    std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
                     new_doc->index_document();
                     documents.push_back(std::move(new_doc));
                 } catch (std::exception &e) {
@@ -139,7 +146,7 @@ void Index::calculate_tfidf_index(int start_index, int end_index) {
 /*
  * Calculates the idf for a certain term over the whole index
  */
-double Index::inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<BDocument>> &corpus) {
+double Index::inverse_doc_frequency(std::string term, const std::vector<std::unique_ptr<Document>> &corpus) {
     int term_count = 0;
     int n = corpus.size();
 

@@ -1,5 +1,5 @@
-#ifndef _H_BDOCUMENT
-#define _H_BDOCUMENT
+#ifndef _H_DOCUMENT
+#define _H_DOCUMENT
 
 #include <algorithm>
 #include <chrono>
@@ -19,12 +19,12 @@
 *  Base Document Class 
 *  TODO: Use Strategy/Command Desing Pattern?
 */
-class BDocument {
+class Document {
    public:
-    BDocument(std::string filepath, std::string file_extension);
+    Document(std::string filepath, std::string file_extension);
 
     /* needs to be virtual, so it can be implemented in the derived classes */
-    virtual ~BDocument();
+    virtual ~Document();
     virtual std::string read_content() = 0;
 
     std::unordered_map<std::string, int> get_concordance();
@@ -58,9 +58,9 @@ class BDocument {
 };
 
 /* a Factory which returns Document objects depending on their file extensions */
-class BDocument_factory {
+class Document_factory {
    public:
-    static std::unique_ptr<BDocument> create_document(
+    static std::unique_ptr<Document> create_document(
         const std::string &filepath, const std::string &extension);
 };
 

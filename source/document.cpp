@@ -1,27 +1,27 @@
-#include "bdocument.h"
+#include "document.h"
 
 #include "pdf_document.h"
 #include "xml_document.h"
 #include "text_document.h"
 
 /* Base Document Class */
-BDocument::BDocument(std::string filepath, std::string file_extension)
+Document::Document(std::string filepath, std::string file_extension)
     : filepath(filepath), file_extension(file_extension) {}
 
-BDocument::~BDocument() {}
+Document::~Document() {}
 
-std::unordered_map<std::string, int> BDocument::get_concordance() {
+std::unordered_map<std::string, int> Document::get_concordance() {
     return concordance;
 }
 
-void BDocument::print_tfidf_scores() {
+void Document::print_tfidf_scores() {
     std::cout << "Doc: " << filepath << std::endl;
     for (const auto &entry: tfidf_scores) {
         std::cout << entry.first << " Score: " << entry.second << std::endl;
     }    
 }
 
-void BDocument::insert_tfidf_score(std::pair<std::string, double> tfidf_score) {
+void Document::insert_tfidf_score(std::pair<std::string, double> tfidf_score) {
     tfidf_scores.insert(tfidf_score);
 }
 
@@ -29,7 +29,7 @@ void BDocument::insert_tfidf_score(std::pair<std::string, double> tfidf_score) {
  * 	returns the tfidf score of the term
  * 	returns 0 if the term is not in the Document
  */
-double BDocument::get_tfidf_score(const std::string &term) {
+double Document::get_tfidf_score(const std::string &term) {
     if (tfidf_scores.contains(term)) {
         return tfidf_scores.at(term);
     }
@@ -37,12 +37,12 @@ double BDocument::get_tfidf_score(const std::string &term) {
     return 0.0;
 }
 
-std::string BDocument::get_filepath() { return filepath; }
+std::string Document::get_filepath() { return filepath; }
 
-std::string BDocument::get_extension() { return file_extension; }
+std::string Document::get_extension() { return file_extension; }
 
 /* number of times, a word occurs in a given document */
-int BDocument::get_term_frequency(const std::string &term) {
+int Document::get_term_frequency(const std::string &term) {
     if (concordance.find(term) != concordance.end()) {
         return concordance.at(term);
     }
@@ -50,19 +50,19 @@ int BDocument::get_term_frequency(const std::string &term) {
     return 0;
 }
 
-std::string BDocument::get_file_content_as_string() {
+std::string Document::get_file_content_as_string() {
     std::string file_content = read_content();
     return file_content;
 }
 
-bool BDocument::contains_term(const std::string &term) {
+bool Document::contains_term(const std::string &term) {
     if (concordance.find(term) != concordance.end()) {
         return true;
     }
     return false;
 }
 
-void BDocument::index_document() {
+void Document::index_document() {
     std::string word;
     std::istringstream iss(this->read_content());
 
@@ -85,7 +85,7 @@ void BDocument::index_document() {
     indexed_at = std::chrono::system_clock::now();
 }
 
-std::vector<std::string> BDocument::clean_word(std::string &word) {
+std::vector<std::string> Document::clean_word(std::string &word) {
     std::vector<std::string> clean_words;
     /* transform every word to lower case letters */
     std::transform(word.begin(), word.end(), word.begin(),
@@ -111,7 +111,7 @@ std::vector<std::string> BDocument::clean_word(std::string &word) {
  * and the function returns true, otherwise the function returns false
  * TODO: Move to index
  */
-bool BDocument::needs_reindexing() {
+bool Document::needs_reindexing() {
     try {
         std::filesystem::file_time_type ftime =
         std::filesystem::last_write_time(this->get_filepath());
@@ -124,7 +124,7 @@ bool BDocument::needs_reindexing() {
 }
 
 /* Document Factory implementation */
-std::unique_ptr<BDocument> BDocument_factory::create_document(
+std::unique_ptr<Document> Document_factory::create_document(
     const std::string &filepath, const std::string &extension) {
 
     if (extension == ".xml" || extension == ".xhtml") {

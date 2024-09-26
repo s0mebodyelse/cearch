@@ -5,7 +5,7 @@
 
 
 PDF_Document::PDF_Document(const std::string& filepath)
-    : BDocument(filepath, "pdf"),
+    : Document(filepath, "pdf"),
       doc(poppler::document::load_from_file(filepath)) {
     if (!doc) {
         throw std::runtime_error("Error: Could not open the PDF file!");

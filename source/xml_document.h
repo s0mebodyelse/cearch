@@ -1,12 +1,12 @@
 #ifndef _XML_H
 #define _XML_H
 
-#include "bdocument.h"
+#include "document.h"
 
 /* XML Parsing */
 #include <pugixml.hpp>
 
-class XML_Document : public BDocument {
+class XML_Document : public Document {
    public:
     XML_Document(const std::string &filepath);
     std::string read_content() override;
