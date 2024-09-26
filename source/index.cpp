@@ -64,19 +64,13 @@ int Index::get_document_counter() { return documents.size(); }
  */
 void Index::build_document_index(std::string directory) {
     /* if the param is a directory */
-    if (std::filesystem::status(directory).type() ==
-        std::filesystem::file_type::directory) {
+    if (std::filesystem::status(directory).type() == std::filesystem::file_type::directory) {
         std::cout << "Building index of directory: " << directory << std::endl;
         if (std::filesystem::exists(directory)) {
-            /* go over every file in the directory and create a Document Object
-             * for the file */
-            for (auto const &entry :
-                 std::filesystem::recursive_directory_iterator(directory)) {
+            for (auto const &entry : std::filesystem::recursive_directory_iterator(directory)) {
                 std::string filepath = entry.path();
-                std::string file_extension =
-                    std::filesystem::path(entry.path()).extension();
-                /* on creation the document get indexed (clean words in the doc
-                 * and there occurance counter) */
+                std::string file_extension = std::filesystem::path(entry.path()).extension();
+
                 try {
                     std::unique_ptr<BDocument> new_doc = BDocument_factory::create_document(filepath, file_extension);
                     new_doc->index_document();

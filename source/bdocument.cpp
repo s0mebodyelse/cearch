@@ -100,7 +100,6 @@ std::vector<std::string> BDocument::clean_word(std::string &word) {
     std::stringstream iss(word);
     std::string split_word;
     while (iss >> split_word) {
-        std::cout << split_word << std::endl;
         clean_words.push_back(split_word);
     }
     return clean_words;
