@@ -22,7 +22,7 @@
 class Index {
    public:
     Index(std::string directory, std::string index_path, int thread_num);
-    ~Index();
+    ~Index() = default;
 
     /* 
     *   calculates a ranking from tfidf index and returns the documents with the

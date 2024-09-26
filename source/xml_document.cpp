@@ -4,7 +4,7 @@
 XML_Document::XML_Document(const std::string &filepath)
     : Document(filepath, "xml") {}
 
-std::string XML_Document::read_content() {
+std::string XML_Document::read_content() const {
     pugi::xml_document doc;
     std::string file_content;
 
@@ -16,7 +16,7 @@ std::string XML_Document::read_content() {
     return file_content;
 }
 
-void XML_Document::traverse_nodes(const pugi::xml_node &root_node, std::string &content) {
+void XML_Document::traverse_nodes(const pugi::xml_node &root_node, std::string &content) const {
     std::queue<pugi::xml_node> node_queue;
     node_queue.push(root_node);
 

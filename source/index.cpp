@@ -27,8 +27,6 @@ Index::Index(std::string directory, std::string index_path, int threads_used)
     std::cout << "Documents: " << get_document_counter() << std::endl;
 }
 
-Index::~Index() {}
-
 /*
  *   queries the index and returns the result ordered by tfidf ranking
  *   returns a sorted vector of pairs <filepath, rank>

@@ -1,5 +1,7 @@
 #include "document.h"
 
+#include "ContentStrategy.h"
+#include "PDFContentStrategy.h"
 #include "pdf_document.h"
 #include "xml_document.h"
 #include "text_document.h"
@@ -7,8 +9,6 @@
 /* Base Document Class */
 Document::Document(std::string filepath, std::string file_extension)
     : filepath(filepath), file_extension(file_extension) {}
-
-Document::~Document() {}
 
 std::unordered_map<std::string, int> Document::get_concordance() {
     return concordance;
@@ -37,7 +37,7 @@ double Document::get_tfidf_score(const std::string &term) {
     return 0.0;
 }
 
-std::string Document::get_filepath() { return filepath; }
+std::string Document::get_filepath() const { return filepath; }
 
 std::string Document::get_extension() { return file_extension; }
 
@@ -85,6 +85,9 @@ void Document::index_document() {
     indexed_at = std::chrono::system_clock::now();
 }
 
+/*
+*   TODO: detect word that end with 's, remove the 's
+*/
 std::vector<std::string> Document::clean_word(std::string &word) {
     std::vector<std::string> clean_words;
     /* transform every word to lower case letters */
@@ -113,8 +116,7 @@ std::vector<std::string> Document::clean_word(std::string &word) {
  */
 bool Document::needs_reindexing() {
     try {
-        std::filesystem::file_time_type ftime =
-        std::filesystem::last_write_time(this->get_filepath());
+        std::filesystem::file_time_type ftime = std::filesystem::last_write_time(this->get_filepath());
         std::chrono::time_point tp = std::chrono::file_clock::to_sys(ftime);
         return tp > this->indexed_at;
     } catch (std::exception &e) {
@@ -137,10 +139,10 @@ std::unique_ptr<Document> Document_factory::create_document(
 
     if (extension == ".pdf") {
         try {
-            return std::make_unique<PDF_Document>(filepath);
+            return std::make_unique<PDF_Document>(filepath, std::make_unique<PDFContentStrategy>());
         } catch (std::exception &e) {
-            std::cerr << "Exception caught creating pdf document: " << e.what()
-                      << std::endl;
+            std::cerr << "Exception caught creating pdf document: " << e.what();
+            std::cerr << std::endl;
         }
     }
 
