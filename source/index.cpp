@@ -9,6 +9,9 @@ Index::Index(std::string directory, std::string index_path, int threads_used)
     : index_path(index_path), thread_num(threads_used) {
 
     const auto processor_count = std::thread::hardware_concurrency();
+    if (processor_count == 0) {
+        std::cerr << "Processor count cant be determined" << std::endl;
+    }
     std::cout << "Processor count: " << processor_count << " used threads: " << threads_used << std::endl;
 
     /* start building the index */
