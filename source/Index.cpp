@@ -1,9 +1,9 @@
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 #include <cmath>
 
 #include "Index.h"
-#include "TextDocument.h"
 
 /*
  *   The directory is the directory which is read and indexed, the index_path is
@@ -200,8 +200,14 @@ void Index::run_reindexing() {
  */
 void Index::read_stopwords(const std::string &filepath) {
     try {
-        TextDocument stop_words{filepath};
-        std::stringstream iss(stop_words.get_file_content_as_string());
+        std::ifstream file(filepath);
+        if (!file.is_open()) {
+            throw std::runtime_error("Failed to open stopwords textfile: " + filepath);
+        }
+
+        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+        std::stringstream iss(content);
         std::string word;
         while (iss >> word) {
             stopwords.push_back(word);
