@@ -1,23 +1,16 @@
 #ifndef _H_INDEX
 #define _H_INDEX
 
-#include <algorithm>
-#include <boost/asio.hpp>
-#include <chrono>
-#include <cmath>
+#include <vector>
 #include <exception>
-#include <filesystem>
-#include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <memory>
 #include <mutex>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include <unordered_map>
 
-#include "document.h"
+#include "Document.h"
 
 class Index {
    public:

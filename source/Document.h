@@ -1,23 +1,15 @@
 #ifndef _H_DOCUMENT
 #define _H_DOCUMENT
 
-#include <algorithm>
 #include <chrono>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <memory>
-#include <queue>
-#include <regex>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <utility>
 
 /* 
 *   Base Document Class 
 *   TODO: Use Strategy/Command Desing Pattern?
+*   The readContent() function is the variation point
 */
 class Document {
    public:
@@ -63,7 +55,7 @@ class Document {
 *   a Factory which returns Document objects depending on a file extension 
 *   throws Exception if the file extension is not implemented
 */
-class Document_factory {
+class DocumentFactory {
    public:
     static std::unique_ptr<Document> create_document(
         const std::string &filepath, const std::string &extension);

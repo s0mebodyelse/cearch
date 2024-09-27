@@ -13,8 +13,8 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 
-#include "index.h"
-#include "server.h"
+#include "Index.h"
+#include "Server.h"
 
 namespace beast = boost::beast;  // from <boost/beast.hpp>
 namespace http = beast::http;    // from <boost/beast/http.hpp>

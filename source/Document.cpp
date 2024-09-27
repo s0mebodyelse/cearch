@@ -1,10 +1,16 @@
-#include "document.h"
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 
+#include "Document.h"
+#include "PDFDocument.h"
+#include "XMLDocument.h"
+
+#include "TextDocument.h"
+
+/* Strategies to implement read_content virtual function */
 #include "ContentStrategy.h"
 #include "PDFContentStrategy.h"
-#include "pdf_document.h"
-#include "xml_document.h"
-#include "text_document.h"
 
 /* Base Document Class */
 Document::Document(std::string filepath, std::string file_extension)
@@ -126,20 +132,20 @@ bool Document::needs_reindexing() {
 }
 
 /* Document Factory implementation */
-std::unique_ptr<Document> Document_factory::create_document(
+std::unique_ptr<Document> DocumentFactory::create_document(
     const std::string &filepath, const std::string &extension) {
 
     if (extension == ".xml" || extension == ".xhtml") {
-        return std::make_unique<XML_Document>(filepath);
+        return std::make_unique<XMLDocument>(filepath);
     }
 
     if (extension == ".txt") {
-        return std::make_unique<Text_Document>(filepath);
+        return std::make_unique<TextDocument>(filepath);
     }
 
     if (extension == ".pdf") {
         try {
-            return std::make_unique<PDF_Document>(filepath, std::make_unique<PDFContentStrategy>());
+            return std::make_unique<PDFDocument>(filepath, std::make_unique<PDFContentStrategy>());
         } catch (std::exception &e) {
             std::cerr << "Exception caught creating pdf document: " << e.what();
             std::cerr << std::endl;

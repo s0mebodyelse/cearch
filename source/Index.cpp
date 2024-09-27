@@ -1,5 +1,9 @@
-#include "index.h"
-#include "text_document.h"
+#include <iostream>
+#include <filesystem>
+#include <cmath>
+
+#include "Index.h"
+#include "TextDocument.h"
 
 /*
  *   The directory is the directory which is read and indexed, the index_path is
@@ -80,7 +84,7 @@ void Index::build_document_index(std::string directory) {
                 std::string file_extension = std::filesystem::path(entry.path()).extension();
 
                 try {
-                    std::unique_ptr<Document> new_doc = Document_factory::create_document(filepath, file_extension);
+                    std::unique_ptr<Document> new_doc = DocumentFactory::create_document(filepath, file_extension);
                     new_doc->index_document();
                     documents.push_back(std::move(new_doc));
                 } catch (std::exception &e) {
@@ -196,7 +200,7 @@ void Index::run_reindexing() {
  */
 void Index::read_stopwords(const std::string &filepath) {
     try {
-        Text_Document stop_words{filepath};
+        TextDocument stop_words{filepath};
         std::stringstream iss(stop_words.get_file_content_as_string());
         std::string word;
         while (iss >> word) {

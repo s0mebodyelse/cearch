@@ -6,8 +6,8 @@
 #include <memory>
 #include <utility>
 
-#include "index.h"
-#include "session.h"
+#include "Index.h"
+#include "Session.h"
 
 class Server {
    public:
