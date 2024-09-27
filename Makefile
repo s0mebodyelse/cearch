@@ -1,12 +1,11 @@
 OUTPUT = cearch
 SOURCE = 	./source/main.cpp \
-			./source/index.cpp \
-			./source/server.cpp \
-			./source/session.cpp \
-			./source/document.cpp \
-			./source/pdf_document.cpp \
-			./source/xml_document.cpp \
-			./source/text_document.cpp
+			./source/Index.cpp \
+			./source/Server.cpp \
+			./source/Session.cpp \
+			./source/Document.cpp \
+			./source/XMLDocument.cpp \
+			./source/TextDocument.cpp
 
 FLAGS = -Wall -Wextra -std=c++20
 LIBS = -lpugixml -lboost_system -lpoppler-cpp
