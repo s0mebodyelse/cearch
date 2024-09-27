@@ -2,12 +2,12 @@
 #define _H_PDFCONTENTSTRATEGY
 
 #include "ContentStrategy.h"
-#include "pdf_document.h"
+#include "PDFDocument.h"
 
 #include <poppler/cpp/poppler-document.h>
 #include <poppler/cpp/poppler-page.h>
 
-class PDFContentStrategy: public ContentStrategy<PDF_Document> {
+class PDFContentStrategy: public ContentStrategy<PDFDocument> {
    public:
     explicit PDFContentStrategy() {};
 
@@ -17,7 +17,7 @@ class PDFContentStrategy: public ContentStrategy<PDF_Document> {
     *   const -> after a function, const means the function cant change any Data members,
     *   of the class it belongs to (PDFContentStrategy)
     */
-    std::string read_content(PDF_Document const &document) const {
+    std::string read_content(PDFDocument const &document) const {
         std::string fulltext;
 
         std::unique_ptr<poppler::document> doc{poppler::document::load_from_file(document.get_filepath())};

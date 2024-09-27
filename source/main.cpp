@@ -6,9 +6,9 @@
 #include <boost/asio.hpp>
 
 /* cearch headers */
-#include "index.h"
-#include "server.h"
-#include "timer.h"
+#include "Index.h"
+#include "Server.h"
+#include "Timer.h"
 
 int main(int argc, const char *argv[]) {
     /* read configuration from command line */
