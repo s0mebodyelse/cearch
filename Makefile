@@ -16,11 +16,8 @@ endif
 
 all: $(TARGET)
 
-.PHONY: dirs clean
 dirs: 
 	mkdir -p $(BUILD_DIR)
-clean:
-	rm -rf $(BUILD_DIR) $(APP_NAME)
 
 # find all cpp files in the source dir
 SOURCES=$(wildcard $(SOURCE_DIR)/*.cpp)
@@ -28,10 +25,7 @@ SOURCES=$(wildcard $(SOURCE_DIR)/*.cpp)
 OBJS=$(patsubst $(SOURCE_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
 
 build: $(OBJS)
-	$(CXX) $(CXXLIBS) $(SOURCES) -o $(APP_NAME) $(FLAGS)
-
-build_sanitized:
-	$(CXX) $(LIBS) $(SOURCES) -o $(APP_NAME)_san $(FLAGS) -fsanitize=address
+	$(CXX) $(FLAGS) $^ -o $(APP_NAME) $(CXXLIBS)
 
 # needed building locally on Mac 
 MAC_INCLUDES =  -I/opt/homebrew/Cellar/boost/1.86.0/include \
@@ -48,7 +42,8 @@ build_mac: $(OBJS)
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp | dirs 
 	$(CXX) $(CXXFLAGS) $(MAC_INCLUDES) -c $< -o $@
 
-
+clean:
+	rm -rf $(BUILD_DIR) $(APP_NAME)
 
 
 
