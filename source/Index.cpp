@@ -6,8 +6,8 @@
 #include "Index.h"
 
 /*
- *   The directory is the directory which is read and indexed, the index_path is
- * used to save the index as a json,
+ *  The directory is the directory which is read and indexed, the index_path is
+ *  used to save the index as a json,
  */
 Index::Index(std::string directory, std::string index_path, int threads_used)
     : index_path(index_path), thread_num(threads_used) {
@@ -32,10 +32,10 @@ Index::Index(std::string directory, std::string index_path, int threads_used)
 }
 
 /*
- *   queries the index and returns the result ordered by tfidf ranking
- *   returns a sorted vector of pairs <filepath, rank>
+ *  queries the index and returns the result ordered by tfidf ranking
+ *  returns a sorted vector of pairs <filepath, rank>
  */
-std::vector<std::pair<std::string, double>> Index::query_index(
+std::vector<std::pair<std::string, double>> Index::queryIndex(
     const std::vector<std::string> &input_values) {
     std::vector<std::pair<std::string, double>> result;
     /* loop over every document in the index */

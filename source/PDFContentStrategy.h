@@ -21,7 +21,6 @@ class PDFContentStrategy: public ContentStrategy<PDFDocument> {
         std::string fulltext;
 
         std::unique_ptr<poppler::document> doc{poppler::document::load_from_file(document.get_filepath())};
-        //doc = std::make_unique<poppler::document>(poppler::document::load_from_file(document.get_filepath()));
 
         if (!doc) {
             throw std::runtime_error("Error: Could not open the PDF file!");

@@ -2,7 +2,8 @@
 #define _H_TIMER
 
 #include <boost/asio.hpp>
-#include "index.h"
+
+#include "Index.h"
 
 class Timer {
    public:

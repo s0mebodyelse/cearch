@@ -14,7 +14,7 @@ class PDFDocument : public Document {
     explicit PDFDocument(const std::string& filepath, std::unique_ptr<ContentStrategyPDF> content)
         : Document(filepath, "pdf"), content_(std::move(content))
     {
-        /* check for nullptr? */
+        /* check for nullptr of content? */
     }
 
     std::string read_content() const override {
