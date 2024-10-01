@@ -4,8 +4,10 @@ SOURCE = 	./source/main.cpp \
 			./source/Server.cpp \
 			./source/Session.cpp \
 			./source/Document.cpp \
-			./source/XMLDocument.cpp \
-			./source/TextDocument.cpp
+			./source/PDFContentStrategy.cpp \
+			./source/XMLContentStrategy.cpp \
+			./source/TextContentStrategy.cpp \
+			./source/DocumentFactory.cpp
 
 FLAGS = -Wall -Wextra -std=c++20
 LIBS = -lpugixml -lboost_system -lpoppler-cpp
