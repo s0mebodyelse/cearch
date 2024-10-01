@@ -1,11 +1,10 @@
 #include <fstream>
 
-#include "TextDocument.h"
+#include "TextContentStrategy.h"
 
-TextDocument::TextDocument(const std::string &filepath)
-    : Document(filepath, "txt") {}
+TextContentStrategy::TextContentStrategy() {}
 
-std::string TextDocument::read_content() const {
+std::string TextContentStrategy::read_content(const std::string &filepath) const {
     std::ifstream file(filepath);
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open file: " + filepath);

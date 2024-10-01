@@ -1,13 +1,12 @@
 #include <iostream>
 #include <queue>
 
-#include "XMLDocument.h"
+#include "XMLContentStrategy.h"
 
 /* XML Specific Documents */
-XMLDocument::XMLDocument(const std::string &filepath)
-    : Document(filepath, "xml") {}
+XMLContentStrategy::XMLContentStrategy() {}
 
-std::string XMLDocument::read_content() const {
+std::string XMLContentStrategy::read_content(const std::string &filepath) const {
     pugi::xml_document doc;
     std::string file_content;
 
@@ -19,7 +18,7 @@ std::string XMLDocument::read_content() const {
     return file_content;
 }
 
-void XMLDocument::traverse_nodes(const pugi::xml_node &root_node, std::string &content) const {
+void XMLContentStrategy::traverse_nodes(const pugi::xml_node &root_node, std::string &content) const {
     std::queue<pugi::xml_node> node_queue;
     node_queue.push(root_node);
 

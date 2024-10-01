@@ -6,18 +6,17 @@
 #include <string>
 #include <unordered_map>
 
+#include "ContentStrategy.h"
+
 /* 
-*   Base Document Class 
-*   TODO: Use Strategy/Command Desing Pattern?
-*   The readContent() function is the variation point
+*   Uses Strategy Design Pattern to get rid of inheritance
+*   For each type of Document a Content Strategy needs to be defined
+*   The Content Strategy has to implement the read_content function
+*   The type of the Document is defined by its file extension 
 */
 class Document {
    public:
-    Document(std::string filepath, std::string file_extension);
-
-    /* needs to be virtual, so it can be implemented in the derived classes */
-    virtual ~Document() = default;
-    virtual std::string read_content() const = 0;
+    Document(std::string filepath, std::string file_extension, std::unique_ptr<ContentStrategy> strategy);
 
     /* fills the concordance from the content of the document */
     void index_document();
@@ -38,10 +37,12 @@ class Document {
 
     static std::vector<std::string> clean_word(std::string &word);
 
-   /* protected grants acces to these members in the derived classes */
-   protected:
+   private:
+    std::string read_content();
+
     std::string filepath;
     std::string file_extension;
+    std::unique_ptr<ContentStrategy> strategy_;
     std::chrono::system_clock::time_point indexed_at;
 
     /* every term in the document and a counter for that term */
@@ -49,16 +50,6 @@ class Document {
 
     /* every term in the document and its tfidf score */
     std::unordered_map<std::string, double> tfidf_scores;
-};
-
-/* 
-*   a Factory which returns Document objects depending on a file extension 
-*   throws Exception if the file extension is not implemented
-*/
-class DocumentFactory {
-   public:
-    static std::unique_ptr<Document> create_document(
-        const std::string &filepath, const std::string &extension);
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Index.h"
+#include "DocumentFactory.h"
 
 /*
  *  The directory is the directory which is read and indexed, the index_path is

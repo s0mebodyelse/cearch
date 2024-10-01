@@ -1,20 +1,16 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 #include "Document.h"
-#include "PDFDocument.h"
-#include "XMLDocument.h"
-
-#include "TextDocument.h"
-
-/* Strategies to implement read_content virtual function */
-#include "ContentStrategy.h"
-#include "PDFContentStrategy.h"
 
 /* Base Document Class */
-Document::Document(std::string filepath, std::string file_extension)
-    : filepath(filepath), file_extension(file_extension) {}
+Document::Document(std::string filepath, std::string file_extension, std::unique_ptr<ContentStrategy> strategy)
+    : filepath(filepath), file_extension(file_extension), strategy_(std::move(strategy))
+{
+    /* check nullptr? */
+}
 
 std::unordered_map<std::string, int> Document::get_concordance() {
     return concordance;
@@ -70,7 +66,7 @@ bool Document::contains_term(const std::string &term) {
 
 void Document::index_document() {
     std::string word;
-    std::istringstream iss(this->read_content());
+    std::istringstream iss(read_content());
 
     std::cout << "Indexing doc : " << this->get_filepath() << std::endl;
 
@@ -89,6 +85,10 @@ void Document::index_document() {
     }
 
     indexed_at = std::chrono::system_clock::now();
+}
+
+std::string Document::read_content() {
+    return strategy_->read_content(filepath);
 }
 
 /*
@@ -130,27 +130,3 @@ bool Document::needs_reindexing() {
         return false;
     }
 }
-
-/* Document Factory implementation */
-std::unique_ptr<Document> DocumentFactory::create_document(
-    const std::string &filepath, const std::string &extension) {
-
-    if (extension == ".xml" || extension == ".xhtml") {
-        return std::make_unique<XMLDocument>(filepath);
-    }
-
-    if (extension == ".txt") {
-        return std::make_unique<TextDocument>(filepath);
-    }
-
-    if (extension == ".pdf") {
-        try {
-            return std::make_unique<PDFDocument>(filepath, std::make_unique<PDFContentStrategy>());
-        } catch (std::exception &e) {
-            std::cerr << "Exception caught creating pdf document: " << e.what();
-            std::cerr << std::endl;
-        }
-    }
-
-    throw std::runtime_error(std::string("Document " + filepath + " " + extension + " not supported"));
-};

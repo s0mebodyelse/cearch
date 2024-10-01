@@ -3,11 +3,10 @@
 
 #include <string>
 
-template <typename T>
 class ContentStrategy {
    public:
     virtual ~ContentStrategy() = default;
-    virtual std::string read_content(T const&) const = 0;
+    virtual std::string read_content(const std::string &filepath) const = 0;
 };
 
 #endif
