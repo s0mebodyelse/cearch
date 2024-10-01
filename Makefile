@@ -1,27 +1,55 @@
-OUTPUT = cearch
-SOURCE = 	./source/main.cpp \
-			./source/Index.cpp \
-			./source/Server.cpp \
-			./source/Session.cpp \
-			./source/Document.cpp \
-			./source/PDFContentStrategy.cpp \
-			./source/XMLContentStrategy.cpp \
-			./source/TextContentStrategy.cpp \
-			./source/DocumentFactory.cpp
+CXX=clang++
+CXXFLAGS=-Wall -Wextra -std=c++20 -O3
+CXXLIBS=-lpugixml -lboost_system -lpoppler-cpp
 
-FLAGS = -Wall -Wextra -std=c++20
-LIBS = -lpugixml -lboost_system -lpoppler-cpp
+APP_NAME=cearch
+SOURCE_DIR=source
+BUILD_DIR=build
 
-MAC_INCLUDES =  -I/opt/homebrew/Cellar/boost/1.86.0/include \
-				-I/opt/homebrew/Cellar/poppler/24.04.0_1/include \
-				-L/opt/homebrew/Cellar/poppler/24.04.0_1/lib/ 
-MAC_LIBS = -lpugixml -lpoppler-cpp
+OS:=$(shell uname)
 
-build:
-	clang++ $(LIBS) $(SOURCE) -o $(OUTPUT) $(FLAGS)
+ifeq ($(OS), Darwin)
+	TARGET=build_mac
+else
+	TARGET=build
+endif
 
-build_mac:
-	clang++ $(MAC_INCLUDES) $(SOURCE) $(MAC_LIBS) -o $(OUTPUT) $(FLAGS) 
+all: $(TARGET)
+
+.PHONY: dirs clean
+dirs: 
+	mkdir -p $(BUILD_DIR)
+clean:
+	rm -rf $(BUILD_DIR) $(APP_NAME)
+
+# find all cpp files in the source dir
+SOURCES=$(wildcard $(SOURCE_DIR)/*.cpp)
+# rename all cpp files to object files in the build dir
+OBJS=$(patsubst $(SOURCE_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
+
+build: $(OBJS)
+	$(CXX) $(CXXLIBS) $(SOURCES) -o $(APP_NAME) $(FLAGS)
 
 build_sanitized:
-	clang++ $(LIBS) $(SOURCE) -o $(OUTPUT)_san $(FLAGS) -fsanitize=address
+	$(CXX) $(LIBS) $(SOURCES) -o $(APP_NAME)_san $(FLAGS) -fsanitize=address
+
+# needed building locally on Mac 
+MAC_INCLUDES =  -I/opt/homebrew/Cellar/boost/1.86.0/include \
+				-I/opt/homebrew/Cellar/poppler/24.04.0_1/include 
+MAC_LIBS=-lpugixml -lpoppler-cpp -L/opt/homebrew/Cellar/poppler/24.04.0_1/lib/ 
+
+# link object files in build dir to final executable
+build_mac: $(OBJS)
+	$(CXX) $(MAC_INCLUDES) $(MAC_LIBS) -o $(APP_NAME) $(FLAGS) $^
+
+# rule to build the object files
+# build the objects the "|" is used to tell make that dirs must exist
+# befor the target can be executed
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp | dirs 
+	$(CXX) $(CXXFLAGS) $(MAC_INCLUDES) -c $< -o $@
+
+
+
+
+
+
