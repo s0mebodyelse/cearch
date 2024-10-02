@@ -8,7 +8,7 @@
 
 /*
  *  The directory is the directory which is read and indexed, the index_path is
- *  used to save the index as a json,
+ *  TODO: save index to filesystem, json?
  */
 Index::Index(std::string directory, std::string index_path, int threads_used)
     : index_path(index_path), thread_num(threads_used) {

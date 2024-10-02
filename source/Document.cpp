@@ -9,7 +9,6 @@
 Document::Document(std::string filepath, std::string file_extension, std::unique_ptr<ContentStrategy> strategy)
     : filepath(filepath), file_extension(file_extension), strategy_(std::move(strategy))
 {
-    /* check nullptr? */
 }
 
 std::unordered_map<std::string, int> Document::get_concordance() {

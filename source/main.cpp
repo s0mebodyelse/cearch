@@ -15,6 +15,7 @@ int main(int argc, const char *argv[]) {
     if (argc != 6) {
         std::cerr << "Usage: ./cearch <Port> <Directory to index> <directory ";
         std::cerr << "to save index in> <number of threads to use>";
+        std::cerr << "<timer in seconds for reindexing>";
         std::cerr << std::endl;
         return 1;
     }
@@ -29,7 +30,10 @@ int main(int argc, const char *argv[]) {
         /* create io context */
         boost::asio::io_context io_context;
 
-        /* init the index and timer */
+        /* 
+        *   init the index and timer 
+        *   TODO: Make indexing asynchronous
+        */
         Index idx(directory, index_path, threads);
         Timer timer(tick, io_context, idx);
 

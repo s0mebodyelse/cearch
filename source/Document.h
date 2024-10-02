@@ -16,6 +16,7 @@
 */
 class Document {
    public:
+    /* TODO: make document independant of the filepath, rather use a title or document name or id */
     Document(std::string filepath, std::string file_extension, std::unique_ptr<ContentStrategy> strategy);
 
     /* fills the concordance from the content of the document */

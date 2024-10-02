@@ -9,10 +9,10 @@ Local Search engine with Web Interface
 - poppler (lib-poppler)
 
 ## Build the project
-make build
+make
 
 ## Run Cearch
-./cearch 8080 docs.gl index
+./cearch 8080 docs.gl index 1 10
 
 # Container
 ## build container
